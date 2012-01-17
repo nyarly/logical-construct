@@ -1,0 +1,152 @@
+# vim: set ft=ruby:
+=begin
+
+Of note:
+
+/etc/chef/solo.rb:
+file_cache_path "/var/chef-solo"
+cookbook_path "/var/chef-solo/cookbooks"
+json_attribs "http://www.example.com/node.json"
+recipe_url "http://www.example.com/chef-solo.tar.gz
+
+Means that "chef-solo" will work ootb
+
+So: packaging cookbooks, and putting them places (VM dir + unpack, S3) is a
+thing
+
+Leaning towards: not using S3 as a webserver, since it makes cookbooks public
+(ish)
+Also, adds variation to VM/AMI cases - S3get with perms needs to pull/unpack
+tgz.  Then the solo runs on unpacked cookbooks in both cases
+
+First feature after "it works": rollback.  It was just working - make it work again.
+
+Running specs on VM.  Auto-mount of code directory a la Vagrant...
+
+Checkpointing stuff - snapshot VM, bundling EC2 - after setup, after provision
+
+
+Fundamental goal:
+
+Two orthagonal configurations:
+
+1) What my hosting environment looks like
+2) Where my hosting environment lives.
+
+I should be able to describe 1 and make it happen on different 2s.
+
+Scenarios:
+
+Dev in VM, deploy to EC2 (or ideally, any Fog target)
+
+Deploy a monolith ->
+ deploy simple cluster ->
+  deploy autoscaling worldbeater
+
+Clear already that there are cases where a particular action needs to
+happen in different places - Maybe special cases ignore configs they don't
+handle?
+
+Only trouble is the possiblity of ball-dropping: "I don't do that, and neither
+do I"
+
+
+Version 1:
+Everything possible is "chef'll do it"
+"Target Configuration" is: write your Rakefile that way.
+"Env Configuration" is: write your cookbook/attrs
+Ideally: that's enough.
+
+=end
+
+#Parent/host system
+module Construction
+
+  #setup => rake bootstrap[address]
+  setup = Setup.new
+
+  setup.in_namespace do
+    #create chef config dir on server
+    dir = CreateDirectory.new(setup) #needs server, dir
+
+    #template Rakefile
+    rakefile = BuildRakefile.new(setup)
+
+    #scp Gemfile to server
+    #scp Rakefile to server
+    copyfiles = CopyFiles.new(setup, rakefile, dir)
+
+    #bundle setup config dir
+    bundler = BundleSetup.new(setup, dir)
+  end
+
+  #Construct bootstrap:
+  #
+  #VM mode:
+  #
+  #
+  #EC2
+
+  configs = ChefConfigs.new #data for precursor
+
+  vbox = Launch::VirtualBox.new(configs) #vbox instance?
+
+  #launch VM
+  vbox.in_namespace do
+  #scp json precursor to VM
+  #scp chef cookbook to config dir
+    scp_files = CopyFiles.new(vbox) #cookbook, attributes
+  #ssh rake constuct:provision
+    run_provision = RemoteProvision.new(vbox)
+  end
+
+  #launch AMI w/ user metadata - json precusor
+  ec2 = Launch::EC2.new(server_configs)
+end
+
+=begin
+rake launch =>
+
+AMI mode:
+
+run on start
+/etc/rc.d/local => rake startup
+
+get chef.json precursor from instance metadata
+s3 get chef cookbook into config dir
+
+rake construct:provision
+
+Launch tasks (rake construct:provision)
+
+build chef json config
+build chef rb config
+run chef solo
+
+=end
+#Target/child
+module Construction
+  provision = Provision.new do |prov|
+    prov.attr_source = ""
+    prov.cookbook_path = ""
+    prov.config_path = ""
+  end
+
+  ec2_start = EC2Boot.new(provision)
+  ec2_start.in_namespace do
+    metadata = RetrieveMetadata.new(ec2_start) #url path => filesystem path
+    cookbook = GetCookbook.new(ec2_start) do
+      source_url = "s3://..."
+    end
+  end
+
+  provision.in_namespace do
+    attrs = BuildAttributes.new(provision) do |attrs|
+      attrs.destination_path = ""
+    end
+    unpack = UnpackCookbook.new(provision)
+    #location of precursor
+    chef = RunChef.new(attrs, provision) #loc of json, rc, cookbook
+  end
+  task :launch => [ec2_start[:run], provision[:run]]
+end
