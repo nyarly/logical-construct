@@ -8,7 +8,7 @@ Gem::Specification.new do |spec|
   spec.email		= spec.authors.map {|name| author_list[name]}
   spec.summary		= "Works with Fog and Virtualbox and Chef to build servers"
   spec.description	= <<-EndDescription
-  Like Vagrant?  Missing AWS?  Here you go.  Limited Rakefiles to do that.
+  Like Vagrant?  Missing AWS?  Here you go.  Limited Rakefiles to do something like that.
   EndDescription
 
   spec.rubyforge_project= spec.name.downcase
