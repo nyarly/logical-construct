@@ -1,0 +1,8 @@
+<p>The following conditions must be satisfied in order to provision this machine:</p>
+<ul>
+  <% unsatisfied_prerequisites.each do |task| %>
+    <li>
+    <a href="<%= web_path(task)%>"><%= task.name %></a>
+    </li>
+  <% end %>
+</ul>

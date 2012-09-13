@@ -15,9 +15,10 @@ module LogicalConstruct
     end
 
     def resolve_settings
-      @cookbook_archive ||= File::join(construct_dir, "cookbook.tbz")
-      @cookbook_dir ||= File::join(construct_dir, cookbook_name)
-      @cookbook_metadata ||= File::join(cookbook_dir, "metadata.rb")
+      self.cookbook_archive ||= File::join(construct_dir, "cookbook.tbz")
+      self.cookbook_dir ||= File::join(construct_dir, cookbook_name)
+
+      self.cookbook_metadata ||= File::join(cookbook_dir, "metadata.rb")
     end
 
     def untar_command

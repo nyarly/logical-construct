@@ -2,7 +2,14 @@ PATH
   remote: .
   specs:
     logical-construct (0.0.1)
-      mattock (> 0)
+      mattock (>= 0.2.13)
+
+PATH
+  remote: ../../gems/mattock/
+  specs:
+    mattock (0.2.13)
+      tilt (> 0)
+      valise (>= 0.6)
 
 GEM
   remote: http://rubygems.org/
@@ -25,9 +32,6 @@ GEM
       ruby_core_source (>= 0.1.4)
     mailfactory (1.4.0)
       mime-types (>= 1.13.1)
-    mattock (0.2.10)
-      tilt (> 0)
-      valise (>= 0.6)
     mime-types (1.17.2)
     multi_json (1.1.0)
     nokogiri (1.5.2)
@@ -75,5 +79,6 @@ PLATFORMS
 DEPENDENCIES
   corundum (~> 0.0.1)
   logical-construct!
+  mattock!
   ruby-debug19
   sinatra
