@@ -1,3 +1,5 @@
+require 'mattock/tasklib'
+
 module LogicalConstruct
   class ChefSolo < Mattock::TaskLib
     default_namespace :chef_solo
@@ -13,8 +15,8 @@ module LogicalConstruct
 
     required_fields :config_file
 
-    def default_configuration(build)
-      self.config_file = build.solo_rb
+    def default_configuration(chef_config)
+      self.config_file = chef_config.solo_rb
     end
 
     def chef_command

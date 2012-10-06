@@ -67,7 +67,7 @@ module LogicalConstruct
 
     setting :bind, "0.0.0.0"
     setting :port, 51076 #JDL's birthday
-    setting :valise, Mattock::ValiseManager.default_valise("files")
+    setting :valise, Mattock::ValiseManager.default_valise("lib")
 
     def action
       puts

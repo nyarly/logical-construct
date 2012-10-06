@@ -1,7 +1,7 @@
-require 'logical-construct/target/chef-config'
+require 'logical-construct/target/platforms'
 require 'mattock/testing/rake-example-group'
 
-describe LogicalConstruct::ChefConfig do
+describe LogicalConstruct::VirtualBox::ChefConfig do
   include Mattock::RakeExampleGroup
   include FileSandbox
 
@@ -17,10 +17,22 @@ describe LogicalConstruct::ChefConfig do
     end
   end
 
+  let :resolution do
+    require 'logical-construct/testing/resolve-configuration'
+    LogicalConstruct::Testing::ResolveConfiguration.new(provision) do |resolve|
+      resolve.resolutions = {
+        'chef_config:cookbooks:nginx' => "",
+        'chef_config:cookbooks:mongo' => "",
+        'chef_config:json_attribs' => "",
+      }
+    end
+  end
+
   let! :chef_config do
-    LogicalConstruct::ChefConfig.new(provision) do |cc|
+    LogicalConstruct::VirtualBox::ChefConfig.new(provision, resolution) do |cc|
       cc.file_cache_path = "chef-dir"
       cc.solo_rb = "chef-solo.rb"
+      cc.cookbooks = %w{nginx mongo}
     end
   end
 

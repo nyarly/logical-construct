@@ -25,11 +25,10 @@ module LogicalConstruct
     end
 
     def unsatisfied_prerequisites
-      prerequisite_tasks.find_all{|task| task.needed?.tap{|rez| p [task.name, rez]}}
+      prerequisite_tasks.find_all{|task| task.needed?}
     end
 
     def execute(args=nil)
-      p self
       super
       if needed?
         raise "Task #{name} failed to satisfy: #{unsatisfied_prerequisites.inspect}"

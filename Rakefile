@@ -17,7 +17,7 @@ module Corundum
     vc = Git.new(tk) do |vc|
       vc.branch = "master"
     end
-    task tk.finished_files.build => vc["is_checked_in"]
+    #task tk.finished_files.build => vc["is_checked_in"]
     docs = YARDoc.new(tk)
   end
 end

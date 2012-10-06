@@ -44,7 +44,6 @@ module LogicalConstruct
     end
 
     def fulfill(string)
-      p :got => string
       File::open(target_path, "w") do |file|
         file.write(string)
       end
@@ -59,7 +58,6 @@ module LogicalConstruct
     end
 
     def fulfill(string)
-      p :env => string
       ENV[target_name] = string
     end
   end
