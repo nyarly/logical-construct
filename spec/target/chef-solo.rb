@@ -33,7 +33,9 @@ describe LogicalConstruct::ChefSolo do
     include Mattock::CommandLineExampleGroup
 
     it "should run chef-solo" do
-      expect_command /chef-solo/, ""
+      Rake.verbose(true)
+      expect_command /tar/, 0
+      expect_command /chef-solo/, 0
 
       rake["chef_solo:run"].invoke
     end

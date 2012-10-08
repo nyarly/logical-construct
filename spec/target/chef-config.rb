@@ -3,6 +3,7 @@ require 'mattock/testing/rake-example-group'
 
 describe LogicalConstruct::VirtualBox::ChefConfig do
   include Mattock::RakeExampleGroup
+  include Mattock::CommandLineExampleGroup
   include FileSandbox
 
   before :each do
@@ -21,8 +22,7 @@ describe LogicalConstruct::VirtualBox::ChefConfig do
     require 'logical-construct/testing/resolve-configuration'
     LogicalConstruct::Testing::ResolveConfiguration.new(provision) do |resolve|
       resolve.resolutions = {
-        'chef_config:cookbooks:nginx' => "",
-        'chef_config:cookbooks:mongo' => "",
+        'chef_config:cookbook_tarball' => "",
         'chef_config:json_attribs' => "",
       }
     end
@@ -42,6 +42,7 @@ describe LogicalConstruct::VirtualBox::ChefConfig do
 
   describe "invoked" do
     before :each do
+      expect_command /tar/, 0
       rake[File::join(sandbox["chef-dir"].path, "chef-solo.rb")].invoke
     end
 
