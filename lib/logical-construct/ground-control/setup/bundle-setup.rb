@@ -1,15 +1,15 @@
-require 'logical-construct/ground-control/setup/remote'
+require 'logical-construct/ground-control/run-on-target'
 
 module LogicalConstruct
-  class BundleSetup < SetupRemoteTask
+  class BundleSetup < RunOnTarget
     default_namespace :bundle_setup
 
     setting :construct_dir
     nil_fields :bundle_path, :bin_path
 
     def default_configuration(setup)
+      setup.copy_settings_to(self)
       super
-      self.construct_dir = setup.construct_dir
     end
 
     def resolve_configuration
@@ -21,17 +21,16 @@ module LogicalConstruct
       Mattock::PrereqChain.new do |cmd|
         cmd.add Mattock::CommandLine.new("cd", construct_dir)
         cmd.add Mattock::CommandLine.new("bundle") do |cmd|
-          cmd.options << "--path #{bundle_path}"
-          cmd.options << "--binstubs #{bin_path}"
         end
       end
     end
 
     def define
-      desc "Set up bundle on the remote server"
-      super
-      task :remote_setup => self[task_name]
-      task self[task_name] => :remote_config
+      remote_task(:run, "Set up bundle on the remote server") do |task|
+        task.command = cmd("cd", construct_dir) &&
+          ["bundle", "--path #{bundle_path}", "--binstubs #{bin_path}"]
+      end
+      bracket_task(:remote_config, :run, :remote_setup)
     end
   end
 end

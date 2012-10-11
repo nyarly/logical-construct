@@ -1,25 +1,20 @@
-require 'logical-construct/ground-control/setup/remote'
+require 'logical-construct/ground-control/run-on-target'
 
 module LogicalConstruct
-  class CreateConstructDirectory < SetupRemoteTask
+  class CreateConstructDirectory < RunOnTarget
     default_namespace :construct_directory
 
     setting(:construct_dir)
-    setting(:task_name, :create)
 
     def default_configuration(setup)
-      super
       self.construct_dir = setup.construct_dir
-      self.remote_command = Mattock::CommandLine.new("mkdir") do |cmd|
-        cmd.options << "-p"
-        cmd.options << construct_dir
-      end
+      super
     end
 
     def define
-      super
-      desc "Create #{construct_dir} on the remote server"
-      task self[:create]
+      remote_task(:create, "Create #{construct_dir} on the remote server") do |task|
+        task.command = cmd "mkdir", "-p", construct_dir
+      end
       task :remote_groundwork => self[:create]
     end
   end

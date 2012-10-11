@@ -18,19 +18,46 @@ Gem::Specification.new do |spec|
   # Do this: y$@"
   # !!find lib bin doc spec spec_help -not -regex '.*\.sw.' -type f 2>/dev/null
   spec.files		= %w[
+    lib/logical-construct/ground-control.rb
     lib/logical-construct/target.rb
-    lib/logical-construct/parent/setup.rb
+    lib/logical-construct/satisfiable-task.rb
+    lib/logical-construct/testing/resolve-configuration.rb
+    lib/logical-construct/testing/resolving-task.rb
+    lib/logical-construct/target/platforms.rb
+    lib/logical-construct/target/platforms/default/volume.rb
+    lib/logical-construct/target/platforms/default/chef-config.rb
+    lib/logical-construct/target/platforms/default/resolve-configuration.rb
+    lib/logical-construct/target/platforms/aws.rb
+    lib/logical-construct/target/platforms/virtualbox/volume.rb
+    lib/logical-construct/target/platforms/virtualbox.rb
     lib/logical-construct/target/provision.rb
     lib/logical-construct/target/chef-solo.rb
-    lib/logical-construct/target/build-attributes.rb
+    lib/logical-construct/target/host-environment-task.rb
     lib/logical-construct/target/unpack-cookbook.rb
-    lib/logical-construct/parent.rb
+    lib/logical-construct/target/sinatra-resolver.rb
+    lib/logical-construct/target/download-task.rb
+    lib/logical-construct/ground-control/setup/bundle-setup.rb
+    lib/logical-construct/ground-control/setup/create-construct-dir.rb
+    lib/logical-construct/ground-control/setup/ensure-env.rb
+    lib/logical-construct/ground-control/setup/copy-files.rb
+    lib/logical-construct/ground-control/setup/build-files.rb
+    lib/logical-construct/ground-control/setup/remote.rb
+    lib/logical-construct/ground-control/provision.rb
+    lib/logical-construct/ground-control/setup.rb
+    lib/logical-construct/resolving-task.rb
+    lib/templates/resolver/index.html.erb
+    lib/templates/resolver/finished.html.erb
+    lib/templates/resolver/task-form.html.erb
     lib/templates/Gemfile.erb
+    lib/templates/chef.rb.erb
     lib/templates/Rakefile.erb
-    doc/README
+    spec/target/platforms.rb
+    spec/target/chef-solo.rb
+    spec/target/chef-config.rb
     spec_help/spec_helper.rb
     spec_help/gem_test_suite.rb
     spec_help/ungemmer.rb
+    spec_help/mock-resolve.rb
     spec_help/file-sandbox.rb
   ]
 

@@ -13,8 +13,7 @@ module LogicalConstruct
 
     def default_configuration(host)
       super
-      self.target_dir = host.target_dir
-      self.valise = host.valise
+      host.copy_settings_to(self)
     end
 
     def resolve_configuration
@@ -24,11 +23,9 @@ module LogicalConstruct
     end
 
     def define
-      in_namespace do
-        file target_path => [target_dir, valise.find("templates/" + source_path).full_path, Rake.application.rakefile] do
-          File::open(target_path, "w") do |file|
-            file.write render(source_path)
-          end
+      file target_path => [target_dir, valise.find("templates/" + source_path).full_path, Rake.application.rakefile] do
+        File::open(target_path, "w") do |file|
+          file.write render(source_path)
         end
       end
       task :local_setup => target_path

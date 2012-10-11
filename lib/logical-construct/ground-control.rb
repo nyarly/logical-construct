@@ -1,23 +1,25 @@
 require 'mattock'
 
 module LogicalConstruct
-  class GroundControl < Mattock::TaskLib
-    include Mattock::ValiseManager
+  module GroundControl
+    class Core < Mattock::TaskLib
+      include Mattock::ValiseManager
 
-    default_namespace :parent
-    setting(:search_paths, [Mattock::ValiseManager.rel_dir(__FILE__)])
-    setting(:valise)
+      default_namespace :core
+      setting(:search_paths, [Mattock::ValiseManager.rel_dir(__FILE__)])
+      setting(:valise)
 
-    def default_configuration
-      super
-    end
+      def default_configuration
+        super
+      end
 
-    def resolve_configuration
-      @valise = default_valise(search_paths)
-      super
+      def resolve_configuration
+        @valise = default_valise(search_paths)
+        super
+      end
     end
   end
 end
 
-require 'logical-construct/parent/setup'
-#require 'logical-construct/parent/launch'
+require 'logical-construct/ground-control/setup'
+require 'logical-construct/ground-control/provision'
