@@ -1,25 +1,14 @@
-module LogicalConstruct
-  provision = Provision.new do |prov|
-    prov.attr_source = ""
-    prov.cookbook_path = ""
-    prov.config_path = ""
-  end
+require 'logical-construct/target'
 
-  ec2_start = EC2Boot.new(provision)
-  ec2_start.in_namespace do
-    metadata = RetrieveMetadata.new(ec2_start) #url path => filesystem path
-    cookbook = GetCookbook.new(ec2_start) do
-      source_url = "s3://..."
-    end
-  end
+include LogicalConstruct
+include LogicalConstruct::Platform()
 
-  provision.in_namespace do
-    attrs = BuildAttributes.new(provision) do |attrs|
-      attrs.destination_path = ""
-    end
-    unpack = UnpackCookbook.new(provision)
-    #location of precursor
-    chef = RunChef.new(attrs, provision) #loc of json, rc, cookbook
-  end
-  task :launch => [ec2_start[:run], provision[:run]]
+provision = Provision.new
+
+provision.in_namespace do
+  resolution = ResolveConfiguration.new(provision)
+  chef_config = ChefConfig.new(provision, resolution)
+  chef_solo = ChefSolo.new(chef_config)
 end
+
+task :default => :provision

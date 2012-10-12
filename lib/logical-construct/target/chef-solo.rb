@@ -13,8 +13,6 @@ module LogicalConstruct
       :node_name => nil
     )
 
-    required_fields :config_file
-
     def default_configuration(chef_config)
       self.config_file = chef_config.solo_rb
     end

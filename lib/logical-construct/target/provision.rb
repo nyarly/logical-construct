@@ -20,13 +20,7 @@ module LogicalConstruct
     end
 
     def define
-      task :preflight
-
-      task :approve_host => :preflight
-
-      task :build_configs => :approve_host
-
-      task :provision => :build_configs
+      task_spine(:preflight, :approve_host, :build_configs, :provision)
     end
   end
 end

@@ -10,12 +10,6 @@ module LogicalConstruct
       self.destination_address ||= [remote_server.address, destination_path].join(":")
       cmd("scp", source_path, destination_address)
     end
-
-    def define
-      super
-      task :remote_config => self[task_name]
-      task self[task_name] => :local_setup
-    end
   end
 
   class CopyFiles < Mattock::TaskLib
@@ -23,9 +17,9 @@ module LogicalConstruct
 
     required_fields :files_dir, :remote_server, :construct_dir
 
-    setting :files, ["Rakefile", "Gemfile"].map do |basename|
+    setting :files, ["Rakefile", "Gemfile"].map{|basename|
       nested(:basename => basename, :source_path => nil, :target_path => nil)
-    end
+    }
 
     def default_configuration(setup, build_files)
       super()

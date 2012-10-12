@@ -17,8 +17,8 @@ module LogicalConstruct
     end
 
     def resolve_configuration
-      self.target_path ||= File::join(target_dir, base_name)
-      self.source_path ||= "#{base_name}.erb"
+      self.target_path ||= fail_unless_set(:target_dir) && File::join(target_dir, base_name)
+      self.source_path ||= fail_unless_set(:base_name)  && "#{base_name}.erb"
       super
     end
 

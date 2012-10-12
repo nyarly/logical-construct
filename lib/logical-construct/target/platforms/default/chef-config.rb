@@ -16,8 +16,6 @@ module LogicalConstruct
         :cookbook_tarball_relpath => "cookbooks.tgz",
         :json_attribs_relpath => "node.json"
 
-      setting :cookbooks
-
       setting :resolution_task
 
       nil_fields :recipe_url, :role_path, :role_relpath
@@ -82,10 +80,9 @@ module LogicalConstruct
             file solo_rb => role_path
           end
         end
-        cookbooks.each do |cookbook|
-          task resolution_task => self[:cookbook_tarball]
-          task resolution_task => self[:json_attribs]
-        end
+
+        task resolution_task => self[:cookbook_tarball]
+        task resolution_task => self[:json_attribs]
       end
     end
   end

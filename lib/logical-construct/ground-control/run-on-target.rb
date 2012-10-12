@@ -15,7 +15,7 @@ module LogicalConstruct
     def remote_task(name, comment = nil)
       in_namespace do
         desc comment unless comment.nil?
-        RemoteCommandTask.new(name) do |task|
+        Mattock::RemoteCommandTask.new(name) do |task|
           task.runtime_definition do |task|
             copy_settings_to(task)
             yield(task)

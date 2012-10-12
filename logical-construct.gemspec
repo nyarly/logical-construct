@@ -86,6 +86,5 @@ Gem::Specification.new do |spec|
   spec.rdoc_options	+= ["--title", "#{spec.name}-#{spec.version} RDoc"]
 
   spec.add_dependency("mattock", ">= 0.2.13")
-
-  spec.post_install_message = "Another tidy package brought to you by Judson"
+  spec.add_dependency("sinatra", ">= 1.3.3")
 end

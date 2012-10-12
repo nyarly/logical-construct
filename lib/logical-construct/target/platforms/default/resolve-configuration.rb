@@ -1,3 +1,4 @@
+require 'logical-construct/target/sinatra-resolver'
 module LogicalConstruct
   module Default
     class ResolveConfiguration < Mattock::Tasklib
