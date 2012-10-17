@@ -32,10 +32,8 @@ Gem::Specification.new do |spec|
     lib/logical-construct/target/platforms/virtualbox.rb
     lib/logical-construct/target/provision.rb
     lib/logical-construct/target/chef-solo.rb
-    lib/logical-construct/target/host-environment-task.rb
     lib/logical-construct/target/unpack-cookbook.rb
     lib/logical-construct/target/sinatra-resolver.rb
-    lib/logical-construct/target/download-task.rb
     lib/logical-construct/ground-control/core.rb
     lib/logical-construct/ground-control/run-on-target.rb
     lib/logical-construct/ground-control/setup/bundle-setup.rb
