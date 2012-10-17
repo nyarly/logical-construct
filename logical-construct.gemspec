@@ -36,11 +36,13 @@ Gem::Specification.new do |spec|
     lib/logical-construct/target/unpack-cookbook.rb
     lib/logical-construct/target/sinatra-resolver.rb
     lib/logical-construct/target/download-task.rb
+    lib/logical-construct/ground-control/core.rb
+    lib/logical-construct/ground-control/run-on-target.rb
     lib/logical-construct/ground-control/setup/bundle-setup.rb
-    lib/logical-construct/ground-control/setup/create-construct-directory.rb
     lib/logical-construct/ground-control/setup/ensure-env.rb
     lib/logical-construct/ground-control/setup/copy-files.rb
     lib/logical-construct/ground-control/setup/build-files.rb
+    lib/logical-construct/ground-control/setup/create-construct-directory.rb
     lib/logical-construct/ground-control/provision.rb
     lib/logical-construct/ground-control/setup.rb
     lib/logical-construct/resolving-task.rb
