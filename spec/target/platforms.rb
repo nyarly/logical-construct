@@ -1,6 +1,6 @@
 require 'logical-construct/target/platforms'
 
-describe LogicalContruct do
+describe LogicalConstruct do
   after :each do
     ENV['LOGCON_DEPLOYMENT_PLATFORM'] = nil
     $DEPLOYMENT_PLATFORM = nil

@@ -1,4 +1,4 @@
-module LogicalContruct
+module LogicalConstruct
   module Testing
     def self.stub_resolution(resolver, fulfillment)
       resolver.instance_eval do
