@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    logical-construct (0.0.1)
+    logical-construct (0.0.1.localtesting)
       mattock (>= 0.3.0)
       sinatra (>= 1.3.3)
 

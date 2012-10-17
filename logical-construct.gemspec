@@ -1,6 +1,6 @@
 Gem::Specification.new do |spec|
   spec.name		= "logical-construct"
-  spec.version		= "0.0.1"
+  spec.version		= "0.0.1.localtesting"
   author_list = {
     "Judson Lester" => "nyarly@gmail.com"
   }
