@@ -4,9 +4,10 @@ module LogicalConstruct
   module GroundControl
     class Core < Mattock::TaskLib
       include Mattock::ValiseManager
+      extend Mattock::ValiseManager
 
       default_namespace :core
-      setting(:search_paths, [Mattock::ValiseManager.rel_dir(__FILE__)])
+      setting(:search_paths, [rel_dir(__FILE__)])
       setting(:valise)
 
       def default_configuration
@@ -14,8 +15,17 @@ module LogicalConstruct
       end
 
       def resolve_configuration
-        @valise = default_valise(search_paths)
+        self.valise = default_valise(*search_paths)
         super
+      end
+
+      def define
+        in_namespace do
+          desc "List the search paths for files used by ground control"
+          task :search_paths do
+            p valise
+          end
+        end
       end
     end
   end

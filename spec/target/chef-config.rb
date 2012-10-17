@@ -32,7 +32,6 @@ describe LogicalConstruct::VirtualBox::ChefConfig do
     LogicalConstruct::VirtualBox::ChefConfig.new(provision, resolution) do |cc|
       cc.file_cache_path = "chef-dir"
       cc.solo_rb = "chef-solo.rb"
-      cc.cookbooks = %w{nginx mongo}
     end
   end
 

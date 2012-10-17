@@ -5,7 +5,7 @@ module LogicalConstruct
       default_namespace :setup
 
       settings(
-        :remote_server => nested( :address => nil, :user => nil),
+        :remote_server => nested( :address => nil, :user => "root"),
         :construct_dir => "/var/logical-construct"
       )
 
@@ -18,7 +18,8 @@ module LogicalConstruct
       def define
         in_namespace do
           task :collect, [:address] do |t, args|
-            @remote_server.address = args[:address]
+            remote_server.address = args[:address]
+            p :collect => remote_server
           end
 
           task :local_setup => [:collect]

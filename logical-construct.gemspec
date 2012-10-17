@@ -37,11 +37,10 @@ Gem::Specification.new do |spec|
     lib/logical-construct/target/sinatra-resolver.rb
     lib/logical-construct/target/download-task.rb
     lib/logical-construct/ground-control/setup/bundle-setup.rb
-    lib/logical-construct/ground-control/setup/create-construct-dir.rb
+    lib/logical-construct/ground-control/setup/create-construct-directory.rb
     lib/logical-construct/ground-control/setup/ensure-env.rb
     lib/logical-construct/ground-control/setup/copy-files.rb
     lib/logical-construct/ground-control/setup/build-files.rb
-    lib/logical-construct/ground-control/setup/remote.rb
     lib/logical-construct/ground-control/provision.rb
     lib/logical-construct/ground-control/setup.rb
     lib/logical-construct/resolving-task.rb
@@ -85,6 +84,6 @@ Gem::Specification.new do |spec|
   spec.rdoc_options	+= %w{--main doc/README }
   spec.rdoc_options	+= ["--title", "#{spec.name}-#{spec.version} RDoc"]
 
-  spec.add_dependency("mattock", ">= 0.2.13")
+  spec.add_dependency("mattock", ">= 0.3.0")
   spec.add_dependency("sinatra", ">= 1.3.3")
 end

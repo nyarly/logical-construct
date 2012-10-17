@@ -6,3 +6,5 @@ last_run
 sbmp/
 platform-test.rb
 test_platform.rb
+corundum/
+pkg/

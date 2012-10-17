@@ -27,8 +27,8 @@ module LogicalConstruct
 
     def define
       remote_task(:run, "Set up bundle on the remote server") do |task|
-        task.command = cmd("cd", construct_dir) &&
-          ["bundle", "--path #{bundle_path}", "--binstubs #{bin_path}"]
+        task.command = (cmd("cd", construct_dir) &
+          ["bundle", "--path #{bundle_path}", "--binstubs #{bin_path}"]).tap{|cl| p cl}
       end
       bracket_task(:remote_config, :run, :remote_setup)
     end
