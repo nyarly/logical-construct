@@ -24,14 +24,15 @@ module LogicalConstruct
     end
   end
 
-  def self.Platform()
-    name = $DEPLOYMENT_PLATFORM || ENV['LOGCON_DEPLOYMENT_PLATFORM']
+  def self.Platform(explicit = nil)
+    name = explicit || $DEPLOYMENT_PLATFORM || ENV['LOGCON_DEPLOYMENT_PLATFORM']
     return platforms.fetch(name)
   rescue KeyError
     puts "Cannot find platform specified:"
-    puts "  $DEPLOYMENT_PLATFORM: #{$DEPLOYMENT_PLATFORM}"
-    puts "  ENV['LOGCON_DEPLOYMENT_PLATFORM']: #{ENV['LOGCON_DEPLOYMENT_PLATFORM']}"
-    puts "  available: #{platforms.keys.join(", ")}"
+    puts "  explicit argument: #{explicit.inspect}"
+    puts "  $DEPLOYMENT_PLATFORM: #{$DEPLOYMENT_PLATFORM.inspect}"
+    puts "  ENV['LOGCON_DEPLOYMENT_PLATFORM']: #{ENV['LOGCON_DEPLOYMENT_PLATFORM'].inspect}"
+    puts "  available: #{platforms.keys.inspect}"
     puts
     raise
   end
@@ -47,3 +48,4 @@ module LogicalConstruct
 end
 
 require 'logical-construct/target/platforms/virtualbox'
+require 'logical-construct/target/platforms/aws'

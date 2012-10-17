@@ -3,8 +3,6 @@ require 'logical-construct/target/platforms'
 module LogicalConstruct
   module AWS
     extend PlatformSpecific
-    register_platform
+    register_platform('aws')
   end
-
-  require_platform_files('aws')
 end
