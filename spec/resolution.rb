@@ -6,7 +6,7 @@ require 'logical-construct/target/sinatra-resolver'
 require 'logical-construct/ground-control/provision'
 require 'logical-construct/satisfiable-task'
 
-describe LogicalConstruct::SinatraResolver do
+describe LogicalConstruct::SinatraResolver, :slow => true do
   include Mattock::RakeExampleGroup
 
   let :target_path do
@@ -107,7 +107,8 @@ describe LogicalConstruct::SinatraResolver do
             Process.wait(resolver_process)
           end
         rescue Object => ex
-          p resolver_read.rewind.read
+          resolver_buffer << resolver.read_nonblock(10000) rescue ""
+          p resolver_buffer
           raise
         end
       end.not_to raise_error
