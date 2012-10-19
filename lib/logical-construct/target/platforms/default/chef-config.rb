@@ -1,5 +1,6 @@
 require 'mattock/tasklib'
 require 'mattock/template-host'
+require 'mattock/command-line'
 require 'logical-construct/satisfiable-task'
 
 module LogicalConstruct
