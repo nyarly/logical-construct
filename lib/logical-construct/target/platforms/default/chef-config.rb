@@ -53,15 +53,16 @@ module LogicalConstruct
         super
       end
 
+      include Mattock::CommandLineDSL
       def define
         in_namespace do
           directory file_cache_path
 
-          Mattock::CommandTask.new(:unpack_cookbooks => :cookbook_tarball) do |task|
-            task.command = Mattock::CommandLine.new("tar", "-xzf", cookbook_tarball_path)
+          Mattock::CommandTask.new(:unpack_cookbooks => resolution_task) do |task|
+            task.command = cmd("cd", file_cache_path) & cmd("tar", "-xzf", cookbook_tarball_path)
           end
 
-          file solo_rb => [:unpack_cookbooks, :json_attribs, file_cache_path, resolution_task] do
+          file solo_rb => [file_cache_path, resolution_task, :unpack_cookbooks] do
             File::open(solo_rb, "w") do |file|
               file.write(render("chef.rb.erb"))
             end
@@ -81,8 +82,8 @@ module LogicalConstruct
           end
         end
 
-        task resolution_task => self[:cookbook_tarball]
         task resolution_task => self[:json_attribs]
+        task resolution_task => self[:cookbook_tarball]
       end
     end
   end

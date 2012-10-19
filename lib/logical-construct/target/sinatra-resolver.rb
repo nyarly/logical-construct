@@ -67,7 +67,7 @@ module LogicalConstruct
 
     setting :bind, "0.0.0.0"
     setting :port, 51076 #JDL's birthday
-    setting :valise, Mattock::ValiseManager.default_valise("lib")
+    setting :valise
 
     def action
       puts
@@ -96,7 +96,7 @@ module LogicalConstruct
 
     rescue Errno::EADDRINUSE => e
       puts "Port #{port} in use!"
-      exit 1
+      raise
     end
   end
 end

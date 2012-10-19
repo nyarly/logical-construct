@@ -1,3 +1,6 @@
+require 'mattock'
+require 'mattock/bundle-command-task'
+
 module LogicalConstruct
   class ConfigBuilder < Mattock::TaskLib
     include Mattock::TemplateHost
@@ -28,11 +31,14 @@ module LogicalConstruct
           file.write render(source_path)
         end
       end
+      file target_path => target_dir
       task :local_setup => target_path
     end
   end
 
   class BuildFiles < Mattock::TaskLib
+    include Mattock::CommandLineDSL
+
     default_namespace :build_files
 
     setting(:target_dir, "target_configs")
@@ -43,21 +49,31 @@ module LogicalConstruct
       self.valise = parent.valise
     end
 
-    attr_reader :built_files
-
     def define
-      file_tasks = []
+      rakefile = nil
       in_namespace do
         directory target_dir
 
-        file_tasks = ["Rakefile", "Gemfile"].map do |path|
-          ConfigBuilder.new(self) do |task|
-            task.base_name = path
-          end
+        gemfile = ConfigBuilder.new(self) do |task|
+          task.base_name = "Gemfile"
+        end
+
+        Mattock::BundleCommandTask.new(:standalone => gemfile.target_path) do |bundle_build|
+          bundle_build.command = (
+            cmd("cd", target_dir) &
+            cmd("pwd") &
+            cmd("bundle", "install"){|bundler|
+            bundler.options << "--standalone"
+            bundler.options << "--binstubs=bin"
+          })
+        end
+
+        rakefile = ConfigBuilder.new(self) do |task|
+          task.base_name = "Rakefile"
         end
       end
       desc "Template files to be created on the remote server"
-      task root_task => file_tasks.map{|t| t.target_path}
+      task root_task => [rakefile.target_path] + in_namespace(:standalone)
       task :local_setup => root_task
     end
   end

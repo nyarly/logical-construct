@@ -9,6 +9,7 @@ module LogicalConstruct
       setting :valise
 
       def default_configuration(provision)
+        super
         self.valise = provision.valise
       end
 
@@ -16,8 +17,8 @@ module LogicalConstruct
         in_namespace do
           resolver = LogicalConstruct::SinatraResolver.new do |task|
             task.task_name = "resolve"
+            copy_settings_to(task)
           end
-          copy_settings_to(resolver)
         end
       end
     end

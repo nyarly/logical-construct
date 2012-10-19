@@ -9,6 +9,7 @@ module LogicalConstruct
       setting :resolutions, {}
 
       def default_configuration(provision)
+        super
       end
 
       def define

@@ -1,4 +1,3 @@
-p :loading => __FILE__
 require 'mattock'
 
 module LogicalConstruct

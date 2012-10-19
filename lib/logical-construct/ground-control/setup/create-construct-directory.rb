@@ -8,6 +8,7 @@ module LogicalConstruct
 
     def default_configuration(setup)
       self.construct_dir = setup.construct_dir
+      self.remote_server = setup.proxy_value.remote_server
       super
     end
 

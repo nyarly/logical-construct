@@ -21,11 +21,12 @@ module LogicalConstruct
   class ResolvingTask < Rake::Task
     include Mattock::TaskMixin
     def needed?
+      warn "No prereqs for #{self.inspect}" if prerequisite_tasks.empty?
       prerequisite_tasks.any?{|task| task.needed?}
     end
 
     def unsatisfied_prerequisites
-      prerequisite_tasks.find_all{|task| task.needed?}
+      prerequisite_tasks.find_all{|task| task.is_a?(SatisfiableTask) and task.needed?}
     end
 
     def execute(args=nil)

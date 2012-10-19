@@ -14,6 +14,7 @@ module LogicalConstruct
     )
 
     def default_configuration(chef_config)
+      super
       self.config_file = chef_config.solo_rb
     end
 
