@@ -14,8 +14,11 @@ env = LogicalConstruct::SatisfiableEnvTask.new do |env|
   env.target_name = "LOGCON_TESTING"
 end
 
+require 'mattock/template-host'
+include Mattock::ValiseManager
 res = LogicalConstruct::SinatraResolver.new do |res|
   res.task_name = "resolve"
+  res.valise = default_valise("lib")
 end
 
 task :resolve => [:testfile, :testenv]

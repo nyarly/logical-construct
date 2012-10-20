@@ -58,15 +58,12 @@ module LogicalConstruct
     end
 
     def fulfill(data)
-      case data
-      when String
-        write_data(data)
-      when IO
-        if data.respond_to?(:path)
-          File::link(data.path, target_path)
-        else
-          write_data(data.read)
-        end
+      if data.respond_to? :path
+        FileUtils::move(data.path, target_path)
+      elsif data.respond_to? :read
+        write_data(data.read)
+      else
+        write_data(data.to_s)
       end
     end
   end
