@@ -27,13 +27,23 @@ module LogicalConstruct
           path = resolver.web_path(task)
 
           get path do
-            resolver.render('resolver/task-form.html.erb') do |locals|
-              locals[:task_path] = path
+            if task.prefers_file?
+              resolver.render('resolver/task-file-form.html.erb') do |locals|
+                locals[:task_path] = path
+              end
+            else
+              resolver.render('resolver/task-form.html.erb') do |locals|
+                locals[:task_path] = path
+              end
             end
           end
 
           post path do
-            task.fulfill(request.params["data"])
+            if request.content_type == "multipath/form-data"
+              task.fulfill(request.params["data"][:tempfile])
+            else
+              task.fulfill(request.params["data"])
+            end
             if resolver.needed?
               redirect to("/")
             else

@@ -34,18 +34,39 @@ module LogicalConstruct
 
     def criteria(me)
     end
+
+    def prefer_file?
+      false
+    end
   end
 
   class SatisfiableFileTask < SatisfiableTask
     setting :target_path
 
+    def prefer_file?
+      true
+    end
+
     def criteria(task)
       File::exists?(target_path)
     end
 
-    def fulfill(string)
+    def write_data(data)
       File::open(target_path, "w") do |file|
         file.write(string)
+      end
+    end
+
+    def fulfill(data)
+      case data
+      when String
+        write_data(data)
+      when IO
+        if data.respond_to?(:path)
+          File::link(data.path, target_path)
+        else
+          write_data(data.read)
+        end
       end
     end
   end

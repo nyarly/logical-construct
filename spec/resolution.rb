@@ -89,10 +89,19 @@ describe LogicalConstruct::SinatraResolver, :slow => true do
       "Some test file content"
     end
 
+    let :file do
+      require 'stringio'
+      StringIO.new(file_content).tap do |str|
+        def str.path
+          "fake_file.txt"
+        end
+      end
+    end
+
     let! :web_configure do
       LogicalConstruct::GroundControl::Provision::WebConfigure.new(:web_configure) do |task|
         task.target_address = "127.0.0.1"
-        task.resolutions["/target"] = proc{ file_content }
+        task.resolutions["/target"] = proc{ file }
       end
     end
 
@@ -115,6 +124,7 @@ describe LogicalConstruct::SinatraResolver, :slow => true do
     end
 
     it "should produce the file" do
+      p File::expand_path target_path
       File::read(target_path).should == file_content
     end
   end
