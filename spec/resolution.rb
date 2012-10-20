@@ -124,7 +124,6 @@ describe LogicalConstruct::SinatraResolver, :slow => true do
     end
 
     it "should produce the file" do
-      p File::expand_path target_path
       File::read(target_path).should == file_content
     end
   end
