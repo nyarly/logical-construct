@@ -9,8 +9,12 @@ require 'logical-construct/satisfiable-task'
 describe LogicalConstruct::SinatraResolver, :slow => true do
   include Mattock::RakeExampleGroup
 
-  let :target_path do
+  let :file_target_path do
     "target-file"
+  end
+
+  let :string_target_path do
+    "target-string"
   end
 
   let :resolver_pipe do
@@ -32,15 +36,20 @@ describe LogicalConstruct::SinatraResolver, :slow => true do
   let :resolver_process do
     Process.fork do
       extend Mattock::ValiseManager
-      LogicalConstruct::SatisfiableFileTask.new(:target) do |task|
-        task.target_path = target_path
+      LogicalConstruct::SatisfiableFileTask.new(:file_target) do |task|
+        task.target_path = file_target_path
+      end
+
+      LogicalConstruct::SatisfiableFileTask.new(:string_target) do |task|
+        task.target_path = string_target_path
       end
 
       LogicalConstruct::SinatraResolver.new(:resolver) do |task|
         task.valise = default_valise(File::expand_path("../../lib", __FILE__))
         task.bind = "127.0.0.1"
       end
-      task :resolver => :target
+      task :resolver => :file_target
+      task :resolver => :string_target
 
       $stdout.reopen(resolver_write)
       $stderr.reopen(resolver_write)
@@ -81,12 +90,16 @@ describe LogicalConstruct::SinatraResolver, :slow => true do
   end
 
   it "should not have a file already" do
-    File::file?(target_path).should be_false
+    File::file?(file_target_path).should be_false
   end
 
   describe LogicalConstruct::GroundControl::Provision::WebConfigure do
     let :file_content do
       "Some test file content"
+    end
+
+    let :string_content do
+      "Some string content"
     end
 
     let :file do
@@ -101,7 +114,8 @@ describe LogicalConstruct::SinatraResolver, :slow => true do
     let! :web_configure do
       LogicalConstruct::GroundControl::Provision::WebConfigure.new(:web_configure) do |task|
         task.target_address = "127.0.0.1"
-        task.resolutions["/target"] = proc{ file }
+        task.resolutions["/file_target"] = proc{ file }
+        task.resolutions["/string_target"] = string_content
       end
     end
 
@@ -124,7 +138,11 @@ describe LogicalConstruct::SinatraResolver, :slow => true do
     end
 
     it "should produce the file" do
-      File::read(target_path).should == file_content
+      File::read(file_target_path).should == file_content
+    end
+
+    it "should produce the string" do
+      File::read(string_target_path).should == string_content
     end
   end
 end

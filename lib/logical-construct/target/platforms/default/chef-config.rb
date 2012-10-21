@@ -81,6 +81,11 @@ module LogicalConstruct
             directory role_path
             file solo_rb => role_path
           end
+
+          desc "Delete all the chef config files (to re-provision)"
+          task :clobber do
+            cmd("rm", "-rf", file_cache_path)
+          end
         end
 
         task resolution_task => self[:json_attribs]

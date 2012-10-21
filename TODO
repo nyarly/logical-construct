@@ -1,0 +1,19 @@
+SSH tunnelling for provision - ideally including a local HTTP proxy of all servers in need
+
+Chef cookbook management?
+
+Arrange deployment vs. application code... related at all?
+
+AWS resolutions:
+  from user_data (or other instance metadata)
+  from S3?
+
+Resolution chains - "look at instance metadata, then S3, then start Sinatra"
+
+Resolution manifests - all Satisfiables "needed" unless they match the manifest (if the manifest task is present...)
+
+Bless instances
+
+"Promote" VBox instances to AWS
+
+Need serious thought to re-design of Satisfiables/Resolver - from a Rake perspective, the Sats should depend on their Rez, but the Rez has to know about the Sats in order to resolve them.

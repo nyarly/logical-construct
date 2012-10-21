@@ -6,16 +6,24 @@ module LogicalConstruct
 
     settings(
       :chef_solo_bin => "chef-solo",
-      :config_file => "/etc/chef/solo.rb",
+      :config_dir => "/etc/chef",
+      :config_file_relpath => "solo.rb",
       :daemonize => nil,
       :user => nil,
       :group => nil,
       :node_name => nil
     )
 
+    setting :config_file
+
     def default_configuration(chef_config)
       super
       self.config_file = chef_config.solo_rb
+    end
+
+    def resolve_configuration
+      super
+      self.config_file ||= File::join(config_dir, config_file_relpath)
     end
 
     def chef_command
@@ -30,7 +38,9 @@ module LogicalConstruct
 
     def define
       in_namespace do
-        file config_file
+        directory config_dir
+        file config_file => config_dir
+
         task :run => [config_file] do
           chef_command.run
         end

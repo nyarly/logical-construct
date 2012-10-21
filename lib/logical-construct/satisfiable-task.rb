@@ -53,7 +53,7 @@ module LogicalConstruct
 
     def write_data(data)
       File::open(target_path, "w") do |file|
-        file.write(string)
+        file.write(data)
       end
     end
 

@@ -1,4 +1,5 @@
 require 'mattock'
+require 'json'
 
 module LogicalConstruct
   module GroundControl
@@ -40,15 +41,17 @@ module LogicalConstruct
           resolution_needed.each do |link|
             href = link['href']
             post_uri = uri_class.build(uri_hash.merge(:path => href))
-            response = RestClient.post(post_uri.to_s, :data => resolve(href))
-            unless (200..299).include? response.code
+            begin
+              response = RestClient.post(post_uri.to_s, :data => resolve(href))
+            rescue RestClient::InternalServerError => ex
+              p ex.message
               require 'tempfile'
               file = Tempfile.open('provision-error.html')
               path = file.path
               file.close!
 
               File::open(path, "w") do |file|
-                file.write response.body
+                file.write ex.http_body
               end
               puts "Written error response to #{path}"
               puts "Try: chromium #{path}"
@@ -69,6 +72,9 @@ module LogicalConstruct
       setting :cookbooks_path
       setting :cookbooks_tarball_path
       setting :json_attribs_path
+      setting :cookbooks_file_list
+      setting :roles, {}
+      setting :json_attribs, { "run_list" => [] }
 
       def default_configuration(core)
         core.copy_settings_to(self)
@@ -77,13 +83,12 @@ module LogicalConstruct
 
       def resolve_configuration
         super
-        #XXX Find in Valise?
         self.json_attribs_path ||= File::join(marshalling_path, "node.json")
         self.cookbooks_tarball_path ||= File::join(marshalling_path, "cookbooks.tgz")
 
-        resolutions["/chef_config/json_attribs"] ||= proc do
-          File::open(json_attribs_path, "rb")
-        end
+        self.cookbooks_file_list ||= Rake::FileList[cookbooks_path + "/**/*"].exclude(%r{/[.]git/})
+
+        resolutions["/chef_config/json_attribs"] ||= json_attribs.to_json
 
         resolutions["/chef_config/cookbook_tarball"] ||= proc do
           File::open(cookbooks_tarball_path, "rb")
@@ -95,16 +100,19 @@ module LogicalConstruct
         in_namespace do
           directory marshalling_path
 
-          task :collect, [:ipaddr] do |task, args|
+          task :collect, [:ipaddr, :role] do |task, args|
             self.target_address = args[:ipaddr]
+            unless args[:role].nil?
+              self.json_attribs["run_list"] = roles[args[:role]]
+            end
           end
 
-          WebConfigure.new(:web_configure => [:collect, json_attribs_path, cookbooks_tarball_path]) do |task|
+          WebConfigure.new(:web_configure => [:collect, cookbooks_tarball_path]) do |task|
             self.copy_settings_to(task)
             task.target_address = proxy_value.target_address
           end
 
-          file cookbooks_tarball_path => [marshalling_path] + Rake::FileList[cookbooks_path + "/**/*"] do
+          file cookbooks_tarball_path => [marshalling_path] + cookbooks_file_list do
             cmd("tar", "czf", cookbooks_tarball_path, cookbooks_path).must_succeed!
           end
         end
