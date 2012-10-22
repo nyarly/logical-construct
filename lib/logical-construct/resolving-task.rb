@@ -62,9 +62,13 @@ module LogicalConstruct
       @digest ||= Digest::SHA2.new
     end
 
-    def generate_checksum(path)
+    def file_checksum(path)
+      generate_checksum(File::read(path))
+    end
+
+    def generate_checksum(data)
       digest.reset
-      digest << File::read(path)
+      digest << data
       digest.hexdigest
     end
   end
@@ -81,7 +85,7 @@ module LogicalConstruct
     def invalid_checksum(checksum, path)
       return false unless File::exists?(path)
       return true if checksum.nil? or checksum.empty?
-      return checksum != generate_checksum(path)
+      return checksum != file_checksum(path)
     end
 
     def needed?
@@ -102,15 +106,25 @@ module LogicalConstruct
 
   class GenerateManifest < Mattock::Task
     include ManifestHandling
-    setting :paths, {}
-    setting :manifest, ""
+    setting :hash, {}
+    setting :resolutions
+
+    def default_configuration(resolution_host)
+      super
+      self.resolutions = resolution_host.resolutions
+    end
+
+    def data_checksum(path, data)
+      hash[path] = generate_checksum(data)
+    end
 
     def action
-      manifest = {}
-      paths.each do |source_path, destination_path|
-        manifest[source_path] = generate_checksum(destination_path)
+      resolutions.each_pair do |destination, data|
+        data = data.call if data.respond_to? :call
+        data = data.read if data.respond_to? :read
+        hash[source_path] = generate_checksum(data)
       end
-      self.manifest = YAML::dump(manifest)
+      resolutions[name] = YAML::dump(hash)
     end
   end
 end

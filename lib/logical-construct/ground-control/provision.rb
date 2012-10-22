@@ -1,5 +1,6 @@
 require 'mattock'
 require 'json'
+require 'logical-construct/resolving-task'
 
 module LogicalConstruct
   module GroundControl
@@ -44,6 +45,8 @@ module LogicalConstruct
           require 'rest-client'
           require 'nokogiri'
 
+          p resolutions
+
           until (link = resolution_needed.first).nil?
             href = link['href']
             begin
@@ -78,7 +81,8 @@ module LogicalConstruct
       setting :json_attribs_path
       setting :cookbooks_file_list
       setting :roles, {}
-      setting :json_attribs, { "run_list" => [] }
+      setting :node_attribs, { "run_list" => [] }
+      setting :json_attribs, ""
 
       def default_configuration(core)
         core.copy_settings_to(self)
@@ -92,8 +96,7 @@ module LogicalConstruct
 
         self.cookbooks_file_list ||= Rake::FileList[cookbooks_path + "/**/*"].exclude(%r{/[.]git/})
 
-        resolutions["/chef_config/json_attribs"] ||= json_attribs.to_json
-
+        resolutions["/chef_config/json_attribs"] ||= json_attribs
         resolutions["/chef_config/cookbook_tarball"] ||= proc do
           File::open(cookbooks_tarball_path, "rb")
         end
@@ -107,19 +110,22 @@ module LogicalConstruct
           task :collect, [:ipaddr, :role] do |task, args|
             self.target_address = args[:ipaddr]
             unless args[:role].nil?
-              self.json_attribs["run_list"] = roles[args[:role]]
+              self.node_attribs["run_list"] = roles[args[:role]]
             end
-          end
-
-          WebConfigure.new(:web_configure => [:collect, cookbooks_tarball_path]) do |task|
-            self.copy_settings_to(task)
-            task.target_address = proxy_value.target_address
+            self.json_attribs = node_attribs.to_json
           end
 
           file cookbooks_tarball_path => [marshalling_path] + cookbooks_file_list do
             #XXX There's something to: build a file list, pipe it to xargs for
             #tar... (exclude .git, .swp etc)
             cmd("tar", "czf", cookbooks_tarball_path, cookbooks_path).must_succeed!
+          end
+
+          manifest = LogicalConstruct::GenerateManifest.new(self, :manifest => [cookbooks_tarball_path, :collect])
+
+          WebConfigure.new(:web_configure => [:collect, :manifest, cookbooks_tarball_path]) do |task|
+            self.copy_settings_to(task)
+            task.target_address = proxy_value.target_address
           end
         end
 
