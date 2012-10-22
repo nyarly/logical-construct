@@ -24,25 +24,30 @@ module LogicalConstruct
           return resolved
         end
 
+        def uri(options)
+          uri_class = URI.scheme_list[target_protocol.upcase]
+          uri_hash = {:host => target_address, :port => target_port}
+          return uri_class.build(uri_hash.merge(options)).to_s
+        end
+
+        def resolution_needed
+          index = RestClient.get(uri(:path => '/'))
+          body = Nokogiri::HTML(index.body)
+          return body.xpath("//a[@rel='requirement']")
+        end
+
+
         #XXX I would like this to become an actual RESTful client at some
         #point, but seems it would mean building it from scratch
         def action
           require 'uri'
           require 'rest-client'
           require 'nokogiri'
-          uri_class = URI.scheme_list[target_protocol.upcase]
-          uri_hash = {:host => target_address, :port => target_port}
 
-          index_uri = uri_class.build(uri_hash.merge(:path => '/'))
-          index = RestClient.get(index_uri.to_s)
-
-          body = Nokogiri::HTML(index.body)
-          resolution_needed = body.xpath('//a[@href]')
-          resolution_needed.each do |link|
+          until (link = resolution_needed.first).nil?
             href = link['href']
-            post_uri = uri_class.build(uri_hash.merge(:path => href))
             begin
-              response = RestClient.post(post_uri.to_s, :data => resolve(href))
+              response = RestClient.post(uri(:path => href), :data => resolve(href))
             rescue RestClient::InternalServerError => ex
               require 'tempfile'
               file = Tempfile.open('provision-error.html')

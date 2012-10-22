@@ -69,7 +69,6 @@ describe LogicalConstruct::SinatraResolver, :slow => true do
       resolver_buffer << resolver_read.read_nonblock(4096)
     rescue IO::WaitReadable => err
       sleep 0.1
-      p resolver_buffer
       retry
     end until /Listening on/ =~ resolver_buffer
   end

@@ -1,8 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head profile="http://lrdesign/document-profiles/logical-construct/resolution">
+    <meta charset="UTF-8" />
+    <title>Logical Construct Provisioning Data Resolution</title>
+</head>
+<body>
 <p>The following conditions must be satisfied in order to provision this machine:</p>
 <ul>
   <% unsatisfied.each do |task| %>
     <li>
-    <a href="<%= web_path(task)%>"><%= task.name %></a>
+      <a rel="requirement" href="<%= web_path(task)%>"><%= task.name %></a>
     </li>
   <% end %>
 </ul>
+</body>
+</html>
