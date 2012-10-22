@@ -21,7 +21,6 @@ module LogicalConstruct
     end
 
     def resolve_runtime_configuration
-      super
       self.destination_address ||= [remote_server.address, destination_path].join(":")
       if remote_server.user
         self.destination_address = "#{remote_server.user}@#{destination_address}"
@@ -32,6 +31,7 @@ module LogicalConstruct
         scp.options << source_path
         scp.options << destination_address
       end
+      super
     end
   end
 

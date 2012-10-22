@@ -90,6 +90,7 @@ module LogicalConstruct
 
         task resolution_task => self[:json_attribs]
         task resolution_task => self[:cookbook_tarball]
+        task :build_configs => solo_rb
       end
     end
   end
