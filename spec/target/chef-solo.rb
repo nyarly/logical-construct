@@ -36,6 +36,12 @@ describe LogicalConstruct::ChefSolo do
   describe "invoked" do
     include Mattock::CommandLineExampleGroup
 
+    it "should have the bundle path in the PATH" do
+      expect_some_commands
+      rake["chef_solo:run"].invoke
+      ENV['PATH'].should =~ %r{/var/logical-construct/bin}
+    end
+
     it "should run chef-solo" do
       Rake.verbose(true)
       expect_command /tar/, 0
