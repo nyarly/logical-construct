@@ -8,3 +8,4 @@ platform-test.rb
 test_platform.rb
 corundum/
 pkg/
+satisfaction-test/

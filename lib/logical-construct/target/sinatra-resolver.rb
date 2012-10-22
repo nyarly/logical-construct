@@ -27,7 +27,6 @@ module LogicalConstruct
           path = resolver.web_path(task)
 
           get path do
-            p task.class.ancestors
             if task.prefer_file?
               resolver.render('resolver/task-file-form.html.erb') do |locals|
                 locals[:task_path] = path
@@ -41,9 +40,9 @@ module LogicalConstruct
 
           post path do
             if request.content_type =~ %r{multipart/form-data}
-              task.fulfill(request.params["data"][:tempfile])
+              task.receive(request.params["data"][:tempfile])
             else
-              task.fulfill(request.params["data"])
+              task.receive(request.params["data"])
             end
             if resolver.needed?
               redirect to("/")
@@ -74,7 +73,7 @@ module LogicalConstruct
       puts "STARTING WEB LISTENER TO RESOLVE PREREQUISITES"
       puts
 
-      collector = build_collector(self, prerequisite_tasks)
+      collector = build_collector(self, satisfiables)
       handler      = collector.rack_handler
       handler_name = handler.name
 

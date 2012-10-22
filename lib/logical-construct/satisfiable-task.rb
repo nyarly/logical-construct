@@ -20,9 +20,24 @@ module LogicalConstruct
       #Swallowed
     end
 
+    def prefer_file?
+      false
+    end
+
     def receive(data)
       return unless needed?
       fulfill(data)
+      if data.respond_to? :path
+        fulfill_file(data)
+      elsif data.respond_to? :read
+        fulfill(data.read)
+      else
+        fulfill(data.to_s)
+      end
+    end
+
+    def receive_file(file)
+      fulfill(file.read)
     end
 
     def fulfill(string)
@@ -33,10 +48,6 @@ module LogicalConstruct
     end
 
     def criteria(me)
-    end
-
-    def prefer_file?
-      false
     end
   end
 
@@ -51,19 +62,13 @@ module LogicalConstruct
       File::exists?(target_path)
     end
 
-    def write_data(data)
-      File::open(target_path, "w") do |file|
-        file.write(data)
-      end
+    def fulfill_file(file)
+      FileUtils::move(file.path, target_path)
     end
 
     def fulfill(data)
-      if data.respond_to? :path
-        FileUtils::move(data.path, target_path)
-      elsif data.respond_to? :read
-        write_data(data.read)
-      else
-        write_data(data.to_s)
+      File::open(target_path, "w") do |file|
+        file.write(data)
       end
     end
   end

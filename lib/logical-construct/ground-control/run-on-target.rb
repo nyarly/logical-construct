@@ -5,6 +5,9 @@ module LogicalConstruct
   class RunOnTarget < Mattock::TaskLib
     include Mattock::CommandLineDSL
 
+    SSH_OPTIONS = [ "ControlMaster=auto", "ControlPersist=3600",
+      "StrictHostKeyChecking=no", "UserKnownHostsFile=/dev/null" ]
+
     runtime_setting(:remote_server)
 
     def default_configuration(setup)
@@ -16,10 +19,7 @@ module LogicalConstruct
       in_namespace do
         desc comment unless comment.nil?
         Mattock::RemoteCommandTask.new(name) do |task|
-          task.ssh_options << "ControlMaster=auto"
-          task.ssh_options << "ControlPersist=3600"
-          task.ssh_options << "StrictHostKeyChecking=no"
-          task.ssh_options << "UserKnownHostsFile=/dev/null"
+          task.ssh_options += SSH_OPTIONS
 
           task.runtime_definition do |task|
             copy_settings_to(task)

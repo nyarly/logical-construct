@@ -44,7 +44,6 @@ module LogicalConstruct
             begin
               response = RestClient.post(post_uri.to_s, :data => resolve(href))
             rescue RestClient::InternalServerError => ex
-              p ex.message
               require 'tempfile'
               file = Tempfile.open('provision-error.html')
               path = file.path
@@ -113,6 +112,8 @@ module LogicalConstruct
           end
 
           file cookbooks_tarball_path => [marshalling_path] + cookbooks_file_list do
+            #XXX There's something to: build a file list, pipe it to xargs for
+            #tar... (exclude .git, .swp etc)
             cmd("tar", "czf", cookbooks_tarball_path, cookbooks_path).must_succeed!
           end
         end

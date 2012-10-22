@@ -36,25 +36,24 @@ describe LogicalConstruct::SinatraResolver, :slow => true do
   let :resolver_process do
     Process.fork do
       extend Mattock::ValiseManager
-      LogicalConstruct::SatisfiableFileTask.new(:file_target) do |task|
+      file = LogicalConstruct::SatisfiableFileTask.new(:file_target) do |task|
         task.target_path = file_target_path
       end
 
-      LogicalConstruct::SatisfiableFileTask.new(:string_target) do |task|
+      string = LogicalConstruct::SatisfiableFileTask.new(:string_target) do |task|
         task.target_path = string_target_path
       end
 
-      LogicalConstruct::SinatraResolver.new(:resolver) do |task|
+      LogicalConstruct::SinatraResolver.new(file, string, :resolver) do |task|
         task.valise = default_valise(File::expand_path("../../lib", __FILE__))
         task.bind = "127.0.0.1"
       end
-      task :resolver => :file_target
-      task :resolver => :string_target
 
       $stdout.reopen(resolver_write)
       $stderr.reopen(resolver_write)
 
-      rake[:resolver].invoke
+      rake[:file_target].invoke
+      rake[:string_target].invoke
     end.tap do |pid|
       at_exit do
         kill("KILL", pid) rescue nil
@@ -70,6 +69,7 @@ describe LogicalConstruct::SinatraResolver, :slow => true do
       resolver_buffer << resolver_read.read_nonblock(4096)
     rescue IO::WaitReadable => err
       sleep 0.1
+      p resolver_buffer
       retry
     end until /Listening on/ =~ resolver_buffer
   end

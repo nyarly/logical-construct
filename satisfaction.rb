@@ -14,16 +14,24 @@ env = LogicalConstruct::SatisfiableEnvTask.new do |env|
   env.target_name = "LOGCON_TESTING"
 end
 
+manifest = LogicalConstruct::Manifest.new(file)
+
 require 'mattock/template-host'
 include Mattock::ValiseManager
-res = LogicalConstruct::SinatraResolver.new do |res|
+res = LogicalConstruct::SinatraResolver.new(manifest, file, env) do |res|
   res.task_name = "resolve"
   res.valise = default_valise("lib")
 end
 
-task :resolve => [:testfile, :testenv]
+manifester = LogicalConstruct::GenerateManifest.new(:make_manifest) do |manifest|
+  manifest.paths["satisfaction-test/a_file"] = "satisfaction-test/source_file"
+end
 
-task :default => :resolve do
+task :print_manifest => :make_manifest do
+  puts manifester.task.manifest
+end
+
+task :default => [:print_manifest, :testfile, :testenv] do
   puts "Finished"
   puts "ENV[LOGCON_TESTING] = #{ENV["LOGCON_TESTING"]}"
   puts %x{ls satisfaction-test}
