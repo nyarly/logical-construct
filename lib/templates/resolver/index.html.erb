@@ -9,7 +9,7 @@
 <ul>
   <% unsatisfied.each do |task| %>
     <li>
-      <a rel="requirement" href="<%= web_path(task)%>"><%= task.name %></a>
+      <a rel="requirement" href="<%= web_path(task.name)%>"><%= task.name %></a>
     </li>
   <% end %>
 </ul>

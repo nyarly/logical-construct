@@ -68,7 +68,7 @@ module LogicalConstruct
           task.destination_path = construct_dir
         end
       end
-      bracket_task(:local_setup, :construct_dir, :remote_config)
+      bracket_task(:remote_groundwork, :construct_dir, :remote_config)
 
       desc "Copy locally generated files to the remote server"
       task root_task => in_namespace(:construct_dir)

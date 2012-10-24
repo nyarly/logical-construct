@@ -113,8 +113,8 @@ describe LogicalConstruct::SinatraResolver, :slow => true do
     let! :web_configure do
       LogicalConstruct::GroundControl::Provision::WebConfigure.new(:web_configure) do |task|
         task.target_address = "127.0.0.1"
-        task.resolutions["/file_target"] = proc{ file }
-        task.resolutions["/string_target"] = string_content
+        task.resolutions["file_target"] = proc{ file }
+        task.resolutions["string_target"] = string_content
       end
     end
 

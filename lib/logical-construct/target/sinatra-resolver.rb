@@ -7,9 +7,7 @@ module LogicalConstruct
   class SinatraResolver < ResolvingTask
     include Mattock::TemplateHost
 
-    def web_path(task)
-      "/" + task.name.gsub(":", "/")
-    end
+    include ResolutionProtocol
 
     def build_collector(resolver, prereqs)
       klass = Class.new(Sinatra::Application) do
@@ -24,7 +22,7 @@ module LogicalConstruct
         end
 
         prereqs.each do |task|
-          path = resolver.web_path(task)
+          path = resolver.web_path(task.name)
 
           get path do
             if task.prefer_file?

@@ -22,14 +22,7 @@ module LogicalConstruct
             remote_server.address = args[:address]
           end
 
-          task :local_setup => [:collect]
-
-          task :remote_groundwork => [:local_setup]
-
-          task :remote_config => [:remote_groundwork]
-
-          task :remote_setup => [:remote_config]
-
+          task_spine(:collect, :local_setup, :remote_groundwork, :remote_config, :remote_setup)
           task :complete => [:local_setup, :remote_setup]
         end
 
@@ -42,6 +35,7 @@ module LogicalConstruct
           CreateConstructDirectory.new(self)
           build_files = BuildFiles.new(self)
           CopyFiles.new(self, build_files)
+          InstallInit.new(self)
         end
       end
     end
@@ -51,3 +45,4 @@ end
 require 'logical-construct/ground-control/setup/build-files'
 require 'logical-construct/ground-control/setup/create-construct-directory'
 require 'logical-construct/ground-control/setup/copy-files'
+require 'logical-construct/ground-control/setup/install-init'

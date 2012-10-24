@@ -12,7 +12,6 @@ module LogicalConstruct::GroundControl
 
       provision = Provision.new(core) do |prov|
         prov.marshalling_path = "marshall"
-        prov.cookbooks_path = "cookbooks"
       end
     end
 

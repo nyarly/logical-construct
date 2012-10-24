@@ -23,14 +23,42 @@ module LogicalConstruct
       super
       self.satisfiables = configurables.find_all do |conf|
         conf.is_a? SatisfiableTask
-      end.map{|sat| sat.task}
+      end.map{|sat| sat.rake_task}
     end
 
     def define
       super
       satisfiables.each do |sat|
-        sat.enhance([task.name])
+        sat.enhance([rake_task.name])
       end
+    end
+
+    def add_satisfiable(task)
+      task = task.rake_task if task.respond_to? :rake_task
+      satisfiables << task
+      task.enhance([rake_task.name])
+    end
+  end
+
+  require 'yaml'
+  require 'digest'
+  module ResolutionProtocol
+    def digest
+      @digest ||= Digest::SHA2.new
+    end
+
+    def file_checksum(path)
+      generate_checksum(File::read(path))
+    end
+
+    def generate_checksum(data)
+      digest.reset
+      digest << data
+      digest.hexdigest
+    end
+
+    def web_path(task_name)
+      "/" + task_name.gsub(":", "/")
     end
   end
 
@@ -55,27 +83,9 @@ module LogicalConstruct
     end
   end
 
-  require 'yaml'
-  require 'digest'
-  module ManifestHandling
-    def digest
-      @digest ||= Digest::SHA2.new
-    end
-
-    def file_checksum(path)
-      generate_checksum(File::read(path))
-    end
-
-    def generate_checksum(data)
-      digest.reset
-      digest << data
-      digest.hexdigest
-    end
-  end
-
   class Manifest < SatisfiableTask
     include SatisfiableManager
-    include ManifestHandling
+    include ResolutionProtocol
 
     setting :satisfiables, []
     nil_field :manifest
@@ -96,7 +106,7 @@ module LogicalConstruct
       self.manifest = YAML::load(data)
       satisfiables.each do |sat|
         path = sat.target_path
-        checksum = manifest[path]
+        checksum = manifest[sat.name]
         if invalid_checksum(checksum, path)
           File::rename(path, path + ".invalid")
         end
@@ -105,9 +115,10 @@ module LogicalConstruct
   end
 
   class GenerateManifest < Mattock::Task
-    include ManifestHandling
+    include ResolutionProtocol
     setting :hash, {}
     setting :resolutions
+    setting :receiving_name
 
     def default_configuration(resolution_host)
       super
@@ -122,9 +133,9 @@ module LogicalConstruct
       resolutions.each_pair do |destination, data|
         data = data.call if data.respond_to? :call
         data = data.read if data.respond_to? :read
-        hash[source_path] = generate_checksum(data)
+        hash[destination] = generate_checksum(data)
       end
-      resolutions[name] = YAML::dump(hash)
+      resolutions[receiving_name] = YAML::dump(hash)
     end
   end
 end

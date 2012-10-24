@@ -1,0 +1,15 @@
+#!/bin/runscript
+
+DIR='<%= target_dir %>'
+
+depend() {
+  need net
+}
+
+start() {
+  cd $DIR
+  bin/rake
+}
+
+stop() {
+}

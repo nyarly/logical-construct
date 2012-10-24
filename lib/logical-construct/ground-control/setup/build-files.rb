@@ -71,6 +71,10 @@ module LogicalConstruct
         rakefile = ConfigBuilder.new(self) do |task|
           task.base_name = "Rakefile"
         end
+
+        initd = ConfigBuilder.new(self) do |task|
+          task.base_name = "construct.init.d"
+        end
       end
       desc "Template files to be created on the remote server"
       task root_task => [rakefile.target_path] + in_namespace(:standalone)
