@@ -4,6 +4,8 @@ require 'mattock/bundle-command-task'
 module LogicalConstruct
   class ConfigBuilder < Mattock::TaskLib
     include Mattock::TemplateHost
+    include Mattock::DeferredDefinition
+    Mattock::DeferredDefinition.add_settings(self)
 
     setting(:source_path, nil)
     setting(:target_path, nil)
@@ -27,6 +29,8 @@ module LogicalConstruct
 
     def define
       file target_path => [target_dir, valise.find("templates/" + source_path).full_path, Rake.application.rakefile] do
+        finalize_configuration
+        p extra
         File::open(target_path, "w") do |file|
           file.write render(source_path)
         end
@@ -46,7 +50,8 @@ module LogicalConstruct
 
     def default_configuration(parent)
       super
-      parent.copy_settings_to(self)
+      self.valise = parent.valise
+      self.construct_dir = parent.construct_dir
       self.platform = parent.proxy_value.platform
     end
 
@@ -76,7 +81,9 @@ module LogicalConstruct
         initd = ConfigBuilder.new(self) do |task|
           task.base_name = "construct.init.d"
           task.extra[:construct_dir] = construct_dir
-          task.extra[:platform] = platform
+          task.runtime_definition do
+            task.extra[:platform] = platform
+          end
         end
       end
       desc "Template files to be created on the remote server"

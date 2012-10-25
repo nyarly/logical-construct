@@ -9,7 +9,7 @@ depend() {
 start() {
   cd $DIR
   ebegin "Starting to provision using Logical Construct"
-  LOGCON_DEPLOYMENT_PLATFORM=<%= extra[:deployment_platform] %> bin/rake
+  LOGCON_DEPLOYMENT_PLATFORM=<%= extra[:platform] %> bin/rake
   eend $?
 }
 
