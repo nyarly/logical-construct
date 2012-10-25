@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    logical-construct (0.0.1.localtesting)
+    logical-construct (0.0.1)
       mattock (>= 0.3.1)
       nokogiri (>= 0.13.4)
       rest-client (>= 1.6.7)
