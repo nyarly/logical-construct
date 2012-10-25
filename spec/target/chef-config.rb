@@ -43,6 +43,8 @@ describe LogicalConstruct::VirtualBox::ChefConfig do
   describe "invoked" do
     before :each do
       expect_command /tar/, 0
+      expect_command /tar/, 0
+      expect_command /tar/, 0
       rake[File::join(sandbox["chef-dir"].path, "chef-solo.rb")].invoke
     end
 

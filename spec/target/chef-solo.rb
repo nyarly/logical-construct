@@ -45,6 +45,8 @@ describe LogicalConstruct::ChefSolo do
     it "should run chef-solo" do
       Rake.verbose(true)
       expect_command /tar/, 0
+      expect_command /tar/, 0
+      expect_command /tar/, 0
       expect_command /chef-solo/, 0
 
       rake["chef_solo:run"].invoke
