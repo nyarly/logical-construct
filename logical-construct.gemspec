@@ -1,6 +1,6 @@
 Gem::Specification.new do |spec|
   spec.name		= "logical-construct"
-  spec.version		= "0.0.1"
+  spec.version		= "0.0.2"
   author_list = {
     "Judson Lester" => "nyarly@gmail.com"
   }
@@ -88,9 +88,10 @@ Gem::Specification.new do |spec|
   spec.rdoc_options	+= %w{--main doc/README }
   spec.rdoc_options	+= ["--title", "#{spec.name}-#{spec.version} RDoc"]
 
-  spec.add_dependency("mattock", ">= 0.3.3")
-  spec.add_dependency("sinatra", ">= 1.3.3")
+  spec.add_dependency("mattock", ">= 0.3.4")
 
+  spec.add_dependency("sinatra", ">= 1.3.3")
   spec.add_dependency("rest-client", ">= 1.6.7")
   spec.add_dependency("nokogiri", ">= 0.13.4")
+  spec.add_dependency("json", ">= 1.7.0")
 end

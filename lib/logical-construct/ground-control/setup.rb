@@ -8,8 +8,7 @@ module LogicalConstruct
         :remote_server => nested( :address => nil, :user => "root"),
         :construct_dir => "/var/logical-construct"
       )
-
-      nil_fields :valise
+      nil_fields :valise, :platform
 
       def default_configuration(core)
         super
@@ -18,8 +17,14 @@ module LogicalConstruct
 
       def define
         in_namespace do
-          task :collect, [:address] do |t, args|
+          task :collect, [:address, :platform] do |t, args|
+            [:address, :platform].each do |field|
+              if args[field].nil?
+                fail "Need #{field} for setup"
+              end
+            end
             remote_server.address = args[:address]
+            self.platform = args[:platform]
           end
 
           task_spine(:collect, :local_setup, :remote_groundwork, :remote_config, :remote_setup)
@@ -27,7 +32,7 @@ module LogicalConstruct
         end
 
         desc "Set up a remote server to act as a Construct foundation"
-        task root_task,[:address] => self[:complete]
+        task root_task,[:address, :platform] => self[:complete]
       end
 
       def default_subtasks

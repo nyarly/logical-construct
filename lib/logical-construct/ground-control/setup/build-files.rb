@@ -42,15 +42,17 @@ module LogicalConstruct
     default_namespace :build_files
 
     setting(:target_dir, "target_configs")
-    required_fields :valise, :construct_dir
+    required_fields :valise, :construct_dir, :platform
 
     def default_configuration(parent)
       super
       parent.copy_settings_to(self)
+      self.platform = parent.proxy_value.platform
     end
 
     def define
       rakefile = nil
+      initd = nil
       in_namespace do
         directory target_dir
 
@@ -61,7 +63,6 @@ module LogicalConstruct
         Mattock::BundleCommandTask.new(:standalone => gemfile.target_path) do |bundle_build|
           bundle_build.command = (
             cmd("cd", target_dir) &
-            cmd("pwd") &
             cmd("bundle", "install"){|bundler|
             bundler.options << "--standalone"
             bundler.options << "--binstubs=bin"
@@ -75,10 +76,12 @@ module LogicalConstruct
         initd = ConfigBuilder.new(self) do |task|
           task.base_name = "construct.init.d"
           task.extra[:construct_dir] = construct_dir
+          task.extra[:platform] = platform
         end
       end
       desc "Template files to be created on the remote server"
       task root_task => [rakefile.target_path] + in_namespace(:standalone)
+      task root_task => [initd.target_path] + in_namespace(:standalone)
       task :local_setup => root_task
     end
   end

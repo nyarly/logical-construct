@@ -1,4 +1,4 @@
-#!/bin/runscript
+#!/sbin/runscript
 
 DIR='<%= extra[:construct_dir] %>'
 
@@ -8,8 +8,11 @@ depend() {
 
 start() {
   cd $DIR
-  bin/rake
+  ebegin "Starting to provision using Logical Construct"
+  LOGCON_DEPLOYMENT_PLATFORM=<%= extra[:deployment_platform] %> bin/rake
+  eend $?
 }
 
 stop() {
+  einfo "Stopping Logical Construct [noop]"
 }
