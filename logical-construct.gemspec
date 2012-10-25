@@ -1,6 +1,6 @@
 Gem::Specification.new do |spec|
   spec.name		= "logical-construct"
-  spec.version		= "0.0.3"
+  spec.version		= "0.0.4"
   author_list = {
     "Judson Lester" => "nyarly@gmail.com"
   }
@@ -93,5 +93,5 @@ Gem::Specification.new do |spec|
   spec.add_dependency("sinatra", ">= 1.3.3")
   spec.add_dependency("rest-client", ">= 1.6.7")
   spec.add_dependency("nokogiri", ">= 0.13.4")
-  spec.add_dependency("json", ">= 1.7.0")
+  spec.add_dependency("json")
 end

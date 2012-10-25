@@ -1,8 +1,8 @@
 PATH
   remote: .
   specs:
-    logical-construct (0.0.3)
-      json (>= 1.7.0)
+    logical-construct (0.0.4)
+      json
       mattock (>= 0.3.4)
       nokogiri (>= 0.13.4)
       rest-client (>= 1.6.7)
