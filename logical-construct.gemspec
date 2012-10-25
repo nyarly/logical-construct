@@ -32,27 +32,33 @@ Gem::Specification.new do |spec|
     lib/logical-construct/target/platforms/virtualbox.rb
     lib/logical-construct/target/provision.rb
     lib/logical-construct/target/chef-solo.rb
+    lib/logical-construct/target/host-environment-task.rb
     lib/logical-construct/target/unpack-cookbook.rb
     lib/logical-construct/target/sinatra-resolver.rb
+    lib/logical-construct/target/download-task.rb
     lib/logical-construct/ground-control/core.rb
     lib/logical-construct/ground-control/run-on-target.rb
-    lib/logical-construct/ground-control/setup/bundle-setup.rb
-    lib/logical-construct/ground-control/setup/ensure-env.rb
     lib/logical-construct/ground-control/setup/copy-files.rb
     lib/logical-construct/ground-control/setup/build-files.rb
     lib/logical-construct/ground-control/setup/create-construct-directory.rb
+    lib/logical-construct/ground-control/setup/install-init.rb
     lib/logical-construct/ground-control/provision.rb
     lib/logical-construct/ground-control/setup.rb
     lib/logical-construct/resolving-task.rb
+    lib/templates/construct.init.d.erb
     lib/templates/resolver/index.html.erb
     lib/templates/resolver/finished.html.erb
     lib/templates/resolver/task-form.html.erb
+    lib/templates/resolver/task-file-form.html.erb
     lib/templates/Gemfile.erb
     lib/templates/chef.rb.erb
     lib/templates/Rakefile.erb
+    spec/resolution.rb
     spec/target/platforms.rb
     spec/target/chef-solo.rb
+    spec/target/smoke-test.rb
     spec/target/chef-config.rb
+    spec/ground-control/smoke-test.rb
     spec_help/spec_helper.rb
     spec_help/gem_test_suite.rb
     spec_help/ungemmer.rb
