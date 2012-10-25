@@ -84,7 +84,7 @@ Gem::Specification.new do |spec|
   spec.rdoc_options	+= %w{--main doc/README }
   spec.rdoc_options	+= ["--title", "#{spec.name}-#{spec.version} RDoc"]
 
-  spec.add_dependency("mattock", ">= 0.3.0")
+  spec.add_dependency("mattock", ">= 0.3.1")
   spec.add_dependency("sinatra", ">= 1.3.3")
 
   spec.add_dependency("rest-client", ">= 1.6.7")

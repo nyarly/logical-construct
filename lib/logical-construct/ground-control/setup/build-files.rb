@@ -42,11 +42,11 @@ module LogicalConstruct
     default_namespace :build_files
 
     setting(:target_dir, "target_configs")
-    setting(:valise)
+    required_fields :valise, :construct_dir
 
     def default_configuration(parent)
       super
-      self.valise = parent.valise
+      parent.copy_settings_to(self)
     end
 
     def define
@@ -74,6 +74,7 @@ module LogicalConstruct
 
         initd = ConfigBuilder.new(self) do |task|
           task.base_name = "construct.init.d"
+          task.extra[:construct_dir] = construct_dir
         end
       end
       desc "Template files to be created on the remote server"

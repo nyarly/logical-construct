@@ -21,14 +21,11 @@ module LogicalConstruct
       end
 
       def define
-        remote_task(:copy_init) do |task|
-          task.command = cmd("mv", source_path, target_path)
+        remote_task(:install_init) do |task|
+          task.command = cmd("install", "-T", source_path, target_path) &
+            ["rc-update", "add", service_name, "default"]
         end
-        remote_task({:rc_update => :copy_init}) do |task|
-          task.command = cmd("rc-update", "add", service_name, "default")
-        end
-        task :remote_setup => self[:rc_update]
-        task self[:rc_update] => :remote_config
+        bracket_task(:remote_config, :install_init, :remote_setup)
       end
     end
   end

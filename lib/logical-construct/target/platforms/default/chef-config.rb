@@ -16,7 +16,7 @@ module LogicalConstruct
       required_field :valise
       settings :solo_rb => "/etc/chef/solo.rb",
         :etc_chef => "/etc/chef",
-        :data_bags_relpath => "data_bags",
+        :data_bags_relpath => "data-bags",
         :cookbook_relpath => "cookbooks",
         :cookbook_tarball_relpath => "cookbooks.tgz",
         :secret_data_tarball_relpath => "secret_data.tgz",
@@ -93,7 +93,7 @@ module LogicalConstruct
             task.command = cmd("cd", file_cache_path) & cmd("tar", "-xzf", normal_data_tarball_path)
           end
 
-          file solo_rb => [etc_chef, :json_attribs, :unpack_cookbooks] do
+          file solo_rb => [etc_chef, :json_attribs, :unpack_cookbooks, :unpack_secret_data, :unpack_normal_data] do
             File::open(solo_rb, "w") do |file|
               file.write(render("chef.rb.erb"))
             end

@@ -82,7 +82,7 @@ module LogicalConstruct
       setting(:target_address, nil).isnt(:copiable)
       setting :target_port, 51076
       setting :resolutions, {}
-      setting :marshalling_path
+      setting :marshalling_path, "marshall"
 
       setting(:secret_data, nested {
         setting :path
@@ -111,8 +111,8 @@ module LogicalConstruct
         core.copy_settings_to(self)
         super
         self.cookbooks.path = "cookbooks"
-        self.secret_data.path = "data_bags/secret"
-        self.normal_data.path = "data_bags"
+        self.secret_data.path = "data-bags/secret"
+        self.normal_data.path = "data-bags"
       end
 
       def resolve_configuration
@@ -151,23 +151,23 @@ module LogicalConstruct
             unless args[:role].nil?
               self.node_attribs["run_list"] = roles[args[:role]]
             end
-            self.json_attribs = node_attribs.to_json
+            self.json_attribs = JSON.pretty_generate(node_attribs)
             resolutions["chef_config:json_attribs"] ||= json_attribs
           end
 
           file secret_data.tarball_path => [marshalling_path] + secret_data.file_list do
-            cmd("tar", "--exclude **/*.sw?", "czf", secret_data.tarball_path, secret_data.path).must_succeed!
+            cmd("tar", "--exclude **/*.sw?", "-czf", secret_data.tarball_path, secret_data.path).must_succeed!
           end
 
           file normal_data.tarball_path => [marshalling_path] + normal_data.file_list do
             cmd("tar",
                 "--exclude **/*.sw?",
                 "--exclude #{secret_data.path}",
-                "czf", normal_data.tarball_path, normal_data.path).must_succeed!
+                "-czf", normal_data.tarball_path, normal_data.path).must_succeed!
           end
 
           file cookbooks.tarball_path => [marshalling_path] + cookbooks.file_list do
-            cmd("tar", "--exclude .git", "--exclude **/*.sw?", "czf", cookbooks.tarball_path, cookbooks.path).must_succeed!
+            cmd("tar", "--exclude .git", "--exclude **/*.sw?", "-czf", cookbooks.tarball_path, cookbooks.path).must_succeed!
           end
 
           manifest = LogicalConstruct::GenerateManifest.new(self, :manifest => [cookbooks.tarball_path, :collect]) do |manifest|
