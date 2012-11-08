@@ -28,14 +28,13 @@ module LogicalConstruct
     end
 
     def define
-      file target_path => [target_dir, valise.find("templates/" + source_path).full_path, Rake.application.rakefile] do
+      task base_name => [target_dir, valise.find("templates/" + source_path).full_path, Rake.application.rakefile] do
         finalize_configuration
-        p extra
         File::open(target_path, "w") do |file|
           file.write render(source_path)
         end
       end
-      file target_path => target_dir
+      task base_name => target_dir
       task :local_setup => target_path
     end
   end
@@ -86,7 +85,6 @@ module LogicalConstruct
           end
         end
       end
-      desc "Template files to be created on the remote server"
       task root_task => [rakefile.target_path] + in_namespace(:standalone)
       task root_task => [initd.target_path] + in_namespace(:standalone)
       task :local_setup => root_task

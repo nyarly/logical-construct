@@ -1,5 +1,7 @@
 SSH tunnelling for provision - ideally including a local HTTP proxy of all servers in need
 
+Move /var/logical-construct to /var/run/lc or /opt/bin/lc or ...
+
 Chef cookbook management?
 
 Arrange deployment vs. application code... related at all?
@@ -16,4 +18,19 @@ Bless instances
 
 "Promote" VBox instances to AWS
 
-Need serious thought to re-design of Satisfiables/Resolver - from a Rake perspective, the Sats should depend on their Rez, but the Rez has to know about the Sats in order to resolve them.
+Bug: /etc/init.d/logical-construct is generated once and never rebuilt, so the LC_DP variable isn't set per rake setup.
+
+Descriptions: need for setup, provision tasks - not sub tasks of setup
+
+Something to handle private keys - an -i option to the SSH commands, basically,
+but it needs to be per-project, and not in the Rakefile.  There's the
+user-configuration, which'll make sense for a lot of things
+(Time being: Judson is using Host *.compute-1.amazonaws.com in .ssh/config)
+
+Consider S3 as a PORTAGE_BINHOST - should be possible to do installs on a machine, then mirror /usr/portage/packages to S3, especially if the metadata in S3 is such that we don't re-upload packages we pulled down to do the build.
+
+Binhost needs to be related to arch, CHOST, CFLAGS, processor USE flags (MXX, SSE, ???)
+
+Unpack needs (at least the option) to clobber target directory - otherwise "bad" files that are just deleted poison the directory.
+
+Pack needs (something) to handle deleted files in the source directory - so file-style + archive index

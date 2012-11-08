@@ -1,0 +1,89 @@
+VERY IMPORTANT:
+Version of the ec2-ami-tools MUST BE UP TO DATE.
+Otherwise bundling will be buggy and waste lots of time.
+
+
+Determine size of Vbox instance
+  exclude some dirs?
+  df/du
+Create disk image of appropriate size (+wiggle room - 10-20%)
+  `dd if=/dev/zero of=aws-nascent.img bs=1M count=5000`
+Format image
+  gotcha: tunefs to never fsck
+  gotcha: keep sparse
+  `/sbin/mke2fs -j aws-nascent.img`
+  `/sbin/tune2fs -c 0 -e continue -i 0 aws-nascent.img`
+Mount image
+  sudo mkdir /mnt/nascent_vm
+  sudo mount aws-nascent.img /mnt/nascent_vm/
+Copy data from vm
+  cd /mnt/nascent_vm
+  (ensure /boot is mounted on vbox)
+  ssh root@lrd-aws-nascent 'find / -regextype posix-egrep -depth \! -regex "/(proc|sys|dev).*" -print0 | cpio -o -0a' | sudo cpio -i -dumv --no-absolute-filenames
+
+FYI
+ec2-bundle-vol excludes:
+   /proc
+   /proc/xen
+   /sys
+   /sys/kernel/debug
+   /sys/fs/cgroup/cpuset
+   /sys/fs/cgroup/cpu
+   /sys/fs/cgroup/cpuacct
+   /sys/fs/cgroup/freezer
+   /dev/pts
+   /proc/sys/fs/binfmt_misc
+   /dev
+   /media
+   /mnt
+   /proc
+   /sys
+   /mnt/ami/lc-setup
+   /mnt/img-mnt
+
+
+Additions to EC2 pre-bundle
+  Update /etc/ssh/sshd_config - RootLogin without-password
+  Add lrd_rsa.pub to root authorized_keys
+  Add ec2-init script to /etc/init.d
+  add ec2-init to boot runlevel with softlinks
+  check /etc/fstab
+  Change fstab and /boot/grub/menu.lst to refer to /dev/xvda
+  ensure /proc /sys /dev exist
+---
+
+Unmount bundle image
+  umount /mnt/nascent_vm
+
+Bundle for EC2
+  #This does happen at volume bundle time
+  block mapping: /dev/sda2=swap /dev/sda3=ephemeral0 #if fails, /etc/fstab
+  Minimal options on bundle
+  Must include arch - don't include kernel
+
+Upload to EC2
+  Remember --retry
+Register AMI
+  Register with instance options (kernel, etc)
+
+*********
+
+Set up AWS credentials:
+
+openssl genrsa 1024 > aws-creds/pk.pem
+openssl req -new -x509 -nodes -sha1 -days 3650 -key aws-creds/pk.pem  -outform PEM > aws-creds/cert.pem
+
+vim aws-creds/AwsCredentialFile
+"""
+AWSAccessKeyId=<Write your AWS access key ID>
+AWSSecretKey=<Write your AWS secret key>
+"""
+vim aws-creds/establish-certs
+"""
+export AWS_CREDENTIAL_FILE=aws-creds/AwsCredentialFile
+export EC2_CERT=aws-certs/cert.pem
+export EC2_PRIVATE_KEY=aws-certs/pk.pem
+"""
+
+source aws-creds/establish-certs
+iam-useraddcert -f aws-creds/cert.pem

@@ -13,7 +13,7 @@ module LogicalConstruct
     end
 
     def define
-      remote_task(:create, "Create #{construct_dir} on the remote server") do |task|
+      remote_task(:create) do |task|
         task.command = cmd "mkdir", "-p", construct_dir
       end
       task :remote_groundwork => self[:create]

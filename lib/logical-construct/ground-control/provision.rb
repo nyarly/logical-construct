@@ -12,7 +12,7 @@ module LogicalConstruct
         setting :target_address, nil
         setting :target_port, 51076
         runtime_setting :target_url
-        setting :resolutions, {}
+        setting :resolutions
         runtime_setting :web_resolutions
 
         def resolve_runtime_configuration
@@ -81,7 +81,7 @@ module LogicalConstruct
       setting :target_protocol, "http"
       setting(:target_address, nil).isnt(:copiable)
       setting :target_port, 51076
-      setting :resolutions, {}
+      setting :resolutions
       setting :marshalling_path, "marshall"
 
       setting(:secret_data, nested {
@@ -103,8 +103,8 @@ module LogicalConstruct
       })
 
       setting :json_attribs_path
-      setting :roles, {}
-      setting :node_attribs, { "run_list" => [] }
+      setting :roles
+      setting :node_attribs
       setting :json_attribs, ""
 
       def default_configuration(core)
@@ -113,6 +113,9 @@ module LogicalConstruct
         self.cookbooks.path = "cookbooks"
         self.secret_data.path = "data-bags/secret"
         self.normal_data.path = "data-bags"
+        self.resolutions = {}
+        self.roles = {}
+        self.node_attribs = { "run_list" => [] }
       end
 
       def resolve_configuration
@@ -146,13 +149,21 @@ module LogicalConstruct
         in_namespace do
           directory marshalling_path
 
-          task :collect, [:ipaddr, :role] do |task, args|
+          task :collect, [:ipaddr] do |task, args|
             self.target_address = args[:ipaddr]
+          end
+
+          task :build_json_attribs, [:role] do |task, args|
             unless args[:role].nil?
               self.node_attribs["run_list"] = roles[args[:role]]
             end
             self.json_attribs = JSON.pretty_generate(node_attribs)
             resolutions["chef_config:json_attribs"] ||= json_attribs
+          end
+
+          desc "Print attribs (optionally: for :role)"
+          task :inspect_attribs, [:role] => :build_json_attribs do
+            puts json_attribs
           end
 
           file secret_data.tarball_path => [marshalling_path] + secret_data.file_list do
@@ -170,17 +181,24 @@ module LogicalConstruct
             cmd("tar", "--exclude .git", "--exclude **/*.sw?", "-czf", cookbooks.tarball_path, cookbooks.path).must_succeed!
           end
 
-          manifest = LogicalConstruct::GenerateManifest.new(self, :manifest => [cookbooks.tarball_path, :collect]) do |manifest|
+          manifest = LogicalConstruct::GenerateManifest.new(self, :manifest =>
+                                                            [
+                                                              cookbooks.tarball_path,
+                                                              secret_data.tarball_path,
+                                                              normal_data.tarball_path,
+                                                              :collect
+                                                            ]) do |manifest|
             manifest.receiving_name = "configuration:Manifest"
           end
 
-          WebConfigure.new(:web_configure => [:collect, :manifest, cookbooks.tarball_path]) do |task|
+          WebConfigure.new(:web_configure => [:collect, :build_json_attribs, :manifest, cookbooks.tarball_path]) do |task|
             self.proxy_settings_to(task)
             task.target_address = proxy_value.target_address
           end
         end
 
-        task root_task, [:ipaddr] => self[:web_configure]
+        desc "Provision :ipaddr with specified configs (optionally: for :role)"
+        task root_task, [:ipaddr, :role] => self[:web_configure]
       end
     end
   end

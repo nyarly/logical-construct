@@ -70,7 +70,6 @@ module LogicalConstruct
       end
       bracket_task(:remote_groundwork, :construct_dir, :remote_config)
 
-      desc "Copy locally generated files to the remote server"
       task root_task => in_namespace(:construct_dir)
       task :remote_config => root_task
     end
