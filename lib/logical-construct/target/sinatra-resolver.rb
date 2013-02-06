@@ -62,7 +62,7 @@ module LogicalConstruct
       return klass
     end
 
-    setting :bind, "0.0.0.0"
+    setting :bind, "127.0.0.1"
     setting :port, 51076 #JDL's birthday
     setting :valise
 

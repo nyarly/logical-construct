@@ -9,7 +9,8 @@ depend() {
 start() {
   cd $DIR
   ebegin "Starting to provision using Logical Construct"
-  LOGCON_DEPLOYMENT_PLATFORM=<%= extra[:platform] %> bin/rake
+  LOGFILE="/root/$(date -u +'%Y-%m-%d;%R').log"
+  LOGCON_DEPLOYMENT_PLATFORM=<%= extra[:platform] %> bin/rake -v > $LOGFILE
   eend $?
 }
 

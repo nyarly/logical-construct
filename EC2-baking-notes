@@ -1,0 +1,55 @@
+Outstanding issues:
+Where is the ephemeral storage mounted?  Probably needs to start as a config, maybe detect later
+
+Data required:
+Three categories: arbitrary (merely shared), task parameters, configuations
+
+Task params:
+Target machine
+AMI name
+
+Configurations:
+Ephemeral storage mount
+Private Key File
+Certificate File
+User ID
+(bundle options, like includes)
+Upload bucket
+S3 access key
+S3 secret key
+
+Arbitrary:
+Manifest path
+Credential file paths
+
+From the EC2 user guide:
+
+[Provisioned]
+Upload EC2 credentials to ephemeral storage (i.e. pk.pem + cert.pem)
+[end provisioned]
+
+[Local to baked machine - should be in target rakefile]
+Write access needed on instance store (/mnt or /media/ephemeral0)
+ec2-bundle-vol -k <private_keyfile> -c <certificate_file> -u <user_id> --include /opt/ec2-ami-tools/etc/ec2/amitools/cert-ec2.pem --include /etc/ssl/*
+ec2-upload-bundle -b <bucket> -m <manifest_path> -a <access_key> -s <secret_key>
+ec2-register <your-s3-bucket>/image.manifest.xml -n image_name
+[end local]
+
+So, if provision, needs to be something like:
+
+GC:
+rake bake[target,ami_name]
+ -> ssh target rake bake (can return 13:"Target incapable", but if 0:...)
+    Important here - on success, there needs to be a long-running process on target
+    So: background self?  Fork new process and return "We're good to go?"
+ -> build json configs
+ -> ssh tunnel'd provision (target wants creds, configs)
+ "Baking initialized"
+
+(Pattern to be repeated in remote re-provisioning, too)
+
+How to tell when done, where it's at?
+
+Target rake task needs to log process, so reviewing/tailing logs lets us answer
+the question "is it done yet." SNS/SES/other email when done?  Maybe something
+simple like "mail" command - if set up, bully, otherwise, you're on your own

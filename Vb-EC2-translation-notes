@@ -87,3 +87,10 @@ export EC2_PRIVATE_KEY=aws-certs/pk.pem
 
 source aws-creds/establish-certs
 iam-useraddcert -f aws-creds/cert.pem
+
+
+**** related to baking EC2 images:
+default ec2-bundle-vol excludes all .pem files by default.  Including files required to re-bundle.  Explicit include required.
+includes required on:
+/opt/ec2-ami-tools/etc/ec2/amitools/cert-ec2.pem
+/etc/ssl/

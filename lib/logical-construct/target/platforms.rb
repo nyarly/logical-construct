@@ -8,18 +8,26 @@ module LogicalConstruct
     platforms[name] = mod
   end
 
-  def self.require_platform_files(platform, mod = nil)
-    [
-      ['volume', :Volume],
-      ['chef-config', :ChefConfig],
-      ['resolve-configuration', :ResolveConfiguration],
-    ].each do |file, classname|
+  PLATFORM_FILES = %w{volume chef-config resolve-configuration bake bake-system}
+  PLATFORM_MODULES = [:Volume, :ChefConfig, :ResolveConfiguration, :Bake, :BakeSystem]
+
+  def self.require_platform_files(platform, mod)
+    missing_files = []
+    PLATFORM_FILES.each do |file|
       begin
         require File::join('logical-construct', 'target', 'platforms', platform, file)
       rescue LoadError
-        raise if mod.nil?
-        klass = Class.new(LogicalConstruct::Default.const_get(classname))
-        mod.const_set(classname, klass)
+        missing_files << file
+      end
+    end
+
+    undefined_modules = []
+    PLATFORM_MODULES.each do |name|
+      unless mod.const_defined?(name)
+        default_klass = LogicalConstruct::Default.const_get(name)
+        raise NameError, "Missing default platform class LogicalConstruct::Default::#{name}"
+        klass = Class.new(default_klass)
+        mod.const_set(name, klass)
       end
     end
   end
@@ -44,7 +52,10 @@ module LogicalConstruct
     end
   end
 
-  require_platform_files('default')
+  module Default
+  end
+
+  require_platform_files('default', Default)
 end
 
 require 'logical-construct/target/platforms/virtualbox'

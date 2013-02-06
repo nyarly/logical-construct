@@ -1,5 +1,7 @@
 require 'logical-construct/target'
 
+#This is where a global platform declaration would go
+
 include LogicalConstruct
 include LogicalConstruct::Platform()
 
@@ -9,6 +11,12 @@ provision.in_namespace do
   resolution = ResolveConfiguration.new(provision)
   chef_config = ChefConfig.new(provision, resolution)
   chef_solo = ChefSolo.new(chef_config)
+end
+
+bake = Bake.new
+bake.in_namespace do
+  resolution = ResolveConfiguration.new(bake)
+  baker = BakeSystem.new(bake, resolution)
 end
 
 task :default => :provision

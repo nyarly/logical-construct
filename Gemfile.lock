@@ -8,6 +8,13 @@ PATH
       rest-client (>= 1.6.7)
       sinatra (>= 1.3.3)
 
+PATH
+  remote: ../../gems/mattock
+  specs:
+    mattock (0.3.4)
+      tilt (> 0)
+      valise (>= 0.6)
+
 GEM
   remote: http://rubygems.org/
   specs:
@@ -33,9 +40,6 @@ GEM
     json (1.7.5)
     mailfactory (1.4.0)
       mime-types (>= 1.13.1)
-    mattock (0.3.4)
-      tilt (> 0)
-      valise (>= 0.6)
     mime-types (1.19)
     multi_json (1.3.6)
     nokogiri (1.5.5)
@@ -67,7 +71,7 @@ GEM
       rack-protection (~> 1.2)
       tilt (~> 1.3, >= 1.3.3)
     tilt (1.3.3)
-    valise (0.7)
+    valise (0.8.2)
     yard (0.8.3)
 
 PLATFORMS
@@ -76,3 +80,4 @@ PLATFORMS
 DEPENDENCIES
   corundum (~> 0.0.1)
   logical-construct!
+  mattock!
