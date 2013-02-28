@@ -1,0 +1,8 @@
+<dl itemscope>
+  <dt>Status</dt>
+  <dd itemprop="status"><%= status %></dd>
+  <dt>Last Poll of Unresolved Needs</dt>
+  <dd itemprop="last-poll"><%= last_unresolved_poll.strftime(time_format) %></dd>
+  <dt>Server Time</dt>
+  <dd itemprop="server-time"><%= Time.now.strftime(time_format) %></dd>
+</dl>

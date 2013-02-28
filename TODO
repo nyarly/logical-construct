@@ -1,23 +1,21 @@
 --- Current showstoppers (pre-share with Evan/LRD)
 
-SSH tunnelling for provision - ideally including a local HTTP proxy of all servers in need
+[written] SSH tunnelling for provision - ideally including a local HTTP proxy of all servers in need
 
 Chef: multiple cookbooks (e.g. LRD base + Client deploy)
 
-Bless(/bake) instances
+[written] Bless(/bake) instances
 
-Logging provisioning stuff - especially the chef output.  rake provision outputs nothing until done.  Logging or output would be handy.
-
-Stream output of commands in rake -v mode.
+[written] Logging provisioning stuff - especially the chef output.  rake provision outputs nothing until done.  Logging or output would be handy.
 
 --- 1= known showstoppers fixed.  Other bugs:
 
 Check fixed: Bug: /etc/init.d/logical-construct is generated once and never rebuilt, so the LC_DP variable isn't set per rake setup.
 
-Unpack needs (at least the option) to clobber target directory - otherwise
+[written] Unpack needs (at least the option) to clobber target directory - otherwise
 "bad" files that are just deleted poison the directory.
 
-Pack needs (something) to handle deleted files in the source directory - so
+[written] Pack needs (something) to handle deleted files in the source directory - so
 file-style + archive index - we need to recreate an archive if a file has been
 deleted
 
@@ -39,11 +37,14 @@ Resolution chains - "look at instance metadata, then S3, then start Sinatra"
 Resolution manifests - all Satisfiables "needed" unless they match the manifest (if the manifest task is present...)
 
 "Promote" VBox instances to AWS (generally: convert instances between platforms)
+(Therefore likewise: translate AWS to VBox)
 
 Something to handle private keys - an -i option to the SSH commands, basically,
 but it needs to be per-project, and not in the Rakefile.  There's the
 user-configuration, which'll make sense for a lot of things
 (Time being: Judson is using Host *.compute-1.amazonaws.com in .ssh/config)
+
+Switchable identities - there's some baking needs to happen for LRD, and then some for SB
 
 GC provision WebConfigure: output re: uploads
 
@@ -51,15 +52,17 @@ Integrate with ... something for instance management
   Should completely replace current workflow of: start Instance, record IP, later:
   for s in $(cat <some ip files>); do <management>; done
 
+Update LC on provisioned box (aot go back to nascent and re-setup)
+
 --- Nice to have (usually easy)
 
-Decompose into 2 tasklibs the ChefConfig tasklib - something like UnpackTarballs and ConfigureChef
+[written] Decompose into 2 tasklibs the ChefConfig tasklib - something like UnpackTarballs and ConfigureChef
 
 Bug: why do we emit several "tar" commands for the cookbook directory?
 
 Descriptions: need for setup, provision tasks - not sub tasks of setup
 
-Move /var/logical-construct to /var/run/lc or /opt/bin/lc or ...
+[written] Move /var/logical-construct to /var/run/lc or /opt/bin/lc or ...
 
 provision namespace needs a "list roles" task
 

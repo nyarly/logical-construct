@@ -8,20 +8,26 @@ module LogicalConstruct
     #XXX Should get broken into at least 2 smaller tasklibs
     class ChefConfig < Mattock::Tasklib
       include Mattock::TemplateHost
+      include DirectoryStructure
+
       default_namespace :chef_config
 
       required_field :construct_dir
       required_fields :cookbook_path, :data_bags_path, :json_attribs,
         :cookbook_tarball_path, :file_cache_path, :secret_data_tarball_path, :normal_data_tarball_path
       required_field :valise
-      settings :solo_rb => "/etc/chef/solo.rb",
-        :etc_chef => "/etc/chef",
-        :data_bags_relpath => "data-bags",
-        :cookbook_relpath => "cookbooks",
-        :cookbook_tarball_relpath => "cookbooks.tgz",
-        :secret_data_tarball_relpath => "secret_data.tgz",
-        :normal_data_tarball_relpath => "normal_data.tgz",
-        :json_attribs_relpath => "node.json"
+
+      dir(:etc_chef, path(:solo_rb, "solo.rb"))
+
+      dir(:construct_dir,
+          dir(:file_cache_path, "chef",
+              path(:data_bags, "data-bags"),
+              path(:cookbook, "cookbooks"),
+              path(:cookbook_tarball, "cookbooks.tgz"),
+              path(:secret_data_tarball, "secret_data.tgz"),
+              path(:normal_data_tarball, "normal_data.tgz"),
+              path(:json_attribs, "node.json")
+             ))
 
       setting :resolution
 
@@ -29,7 +35,7 @@ module LogicalConstruct
 
       def default_configuration(provision, resolution)
         super
-        self.construct_dir = provision.construct_dir
+        self.construct_dir.absolute_path = provision.construct_dir
         self.valise = provision.valise
         self.resolution = resolution
       end
@@ -38,36 +44,9 @@ module LogicalConstruct
       #chef/solo.rb, which are only incidentally related to the tarball
       #unpacking tasks - which are themselves closely related
       def resolve_configuration
-        if unset?(file_cache_path)
-          self.file_cache_path = File::expand_path('chef', construct_dir)
-        end
-        self.file_cache_path = File::expand_path(file_cache_path)
+        construct_dir.absolute_path = File::expand_path(construct_dir.absolute_path)
 
-        if unset?(cookbook_path) and !cookbook_relpath.nil?
-          self.cookbook_path = File::expand_path(cookbook_relpath, file_cache_path)
-        end
-
-        if unset?(data_bags_path) and !data_bags_relpath.nil?
-          self.data_bags_path = File::expand_path(data_bags_relpath, file_cache_path)
-        end
-
-        if unset?(cookbook_tarball_path) and !cookbook_tarball_relpath.nil?
-          self.cookbook_tarball_path = File::expand_path(cookbook_tarball_relpath, file_cache_path)
-        end
-
-        if unset?(secret_data_tarball_path) and !secret_data_tarball_relpath.nil?
-          self.secret_data_tarball_path = File::expand_path(secret_data_tarball_relpath, file_cache_path)
-        end
-
-        if unset?(normal_data_tarball_path) and !normal_data_tarball_relpath.nil?
-          self.normal_data_tarball_path = File::expand_path(normal_data_tarball_relpath, file_cache_path)
-        end
-
-        self.solo_rb = File::expand_path(solo_rb, file_cache_path)
-
-        if unset?(json_attribs) and !json_attribs_relpath.nil?
-          self.json_attribs = File::expand_path(json_attribs_relpath, file_cache_path)
-        end
+        resolve_paths
 
         if role_path.nil? and !role_relpath.nil?
           self.role_path = File::expand_path(role_relpath, file_cache_path)
@@ -78,56 +57,51 @@ module LogicalConstruct
       include Mattock::CommandLineDSL
       def define
         in_namespace do
-          directory etc_chef
-          directory file_cache_path
+          directory etc_chef.absolute_path
+          directory file_cache_path.absolute_path
 
+          #TODO Convert to Unpack Tasklibs
           Mattock::CommandTask.new(:unpack_cookbooks => :cookbook_tarball) do |task|
-            task.command = cmd("cd", file_cache_path) & cmd("tar", "-xzf", cookbook_tarball_path)
+            task.command = cmd("cd", file_cache.absolute_path) & cmd("tar", "-xzf", cookbook_tarball.absolute_path)
           end
 
           Mattock::CommandTask.new(:unpack_secret_data => :secret_data_tarball) do |task|
-            task.command = cmd("cd", file_cache_path) & cmd("tar", "-xzf", secret_data_tarball_path)
+            task.command = cmd("cd", file_cache.absolute_path) & cmd("tar", "-xzf", secret_data_tarball.absolute_path)
           end
 
           Mattock::CommandTask.new(:unpack_normal_data => :normal_data_tarball) do |task|
-            task.command = cmd("cd", file_cache_path) & cmd("tar", "-xzf", normal_data_tarball_path)
+            task.command = cmd("cd", file_cache.absolute_path) & cmd("tar", "-xzf", normal_data_tarball.absolute_path)
           end
 
-          file solo_rb => [etc_chef, :json_attribs, :unpack_cookbooks, :unpack_secret_data, :unpack_normal_data] do
-            File::open(solo_rb, "w") do |file|
+          file solo_rb.absolute_path => [etc_chef, :json_attribs, :unpack_cookbooks, :unpack_secret_data, :unpack_normal_data] do
+            File::open(solo_rb.absolute_path, "w") do |file|
               file.write(render("chef.rb.erb"))
             end
           end
 
-          resolution.add_file(SatisfiableFileTask.new(:json_attribs => file_cache_path) do |task|
-            task.target_path = json_attribs
-          end)
+          [ [:json_attribs, json_attribs],
+            [:cookbook_tarball, cookbook_tarball],
+            [:secret_data_tarball, secret_data_tarball],
+            [:normal_data_tarball, normall_data_tarball] ].each do |task_name, target_file|
+            resolution.add_file(SatisfiableFileTask.new(task_name => file_cache.absolute_path) do |task|
+              task.target_path = target_file.absolute_path
+            end)
+            end
 
-          resolution.add_file(SatisfiableFileTask.new(:cookbook_tarball => file_cache_path) do |task|
-            task.target_path = cookbook_tarball_path
-          end)
-
-          resolution.add_file(SatisfiableFileTask.new(:secret_data_tarball => file_cache_path) do |task|
-            task.target_path = secret_data_tarball_path
-          end)
-
-          resolution.add_file(SatisfiableFileTask.new(:normal_data_tarball => file_cache_path) do |task|
-            task.target_path = normal_data_tarball_path
-          end)
 
           unless role_path.nil?
-            directory role_path
-            file solo_rb => role_path
+            directory role.absolute_path
+            file solo_rb.absolute_path => role.absolute_path
           end
 
           desc "Delete all the chef config files (to re-provision)"
           task :clobber do
-            cmd("rm", "-rf", file_cache_path)
+            cmd("rm", "-rf", file_cache.absolute_path)
           end
         end
 
-        file solo_rb => resolution[:Manifest]
-        task :build_configs => solo_rb
+        file solo_rb.absolute_path => resolution[:Manifest]
+        task :build_configs => solo_rb.absolute_path
       end
     end
   end

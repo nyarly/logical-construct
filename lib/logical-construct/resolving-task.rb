@@ -1,8 +1,118 @@
 require 'rake/task'
 require 'mattock/task'
-require 'logical-construct/satisfiable-task'
 
 module LogicalConstruct
+
+  #This task won't kill the run if it fails - the assumption is that there's a
+  #ResolvingTask that depends on this task to make it work.
+  #
+  #Based on my reasoning about Rake (c.f. ResolvingTask):
+  # Each ST should have a configured #needed? that checks it's responsibility
+  # Execute needs to catch errors
+
+
+  module ReverseDependencies
+    module Prerequisite
+      def postrequisites
+        @postrequisites ||= []
+      end
+      attr_writer :postrequisites
+
+      def add_postrequisite(task)
+        @postrequisites |= [task]
+      end
+    end
+
+    module Postrequisite
+      #Adds what amounts to a reverse dep on any
+      #satisfiable managers
+      def enhance(deps=nil, &block)
+        super
+        prerequisite_tasks.each do |task|
+          if Prerequisite === task
+            task.add_postrequisite(task)
+          end
+        end
+      end
+    end
+  end
+
+  class SatisfiableTask < Mattock::Rake::Task
+    def execute(args=nil)
+      super
+      if application.options.trace and needed?
+        $stderr.puts "** Unsatisfied: #{name}"
+      end
+    rescue Object => ex
+      warn "#{ex.class}: #{ex.message} while performing #{name}"
+      #Swallowed
+    end
+
+    def prefer_file?
+      false
+    end
+
+    def receive(data)
+      return unless needed?
+      fulfill(data)
+      if data.respond_to? :path
+        fulfill_file(data)
+      elsif data.respond_to? :read
+        fulfill(data.read)
+      else
+        fulfill(data.to_s)
+      end
+    end
+
+    def receive_file(file)
+      fulfill(file.read)
+    end
+
+    def fulfill(string)
+    end
+
+    def needed?
+      return !criteria(self)
+    end
+
+    def criteria(me)
+    end
+  end
+
+  class SatisfiableFileTask < SatisfiableTask
+    setting :target_path
+
+    def prefer_file?
+      true
+    end
+
+    def criteria(task)
+      File::exists?(target_path)
+    end
+
+    def fulfill_file(file)
+      FileUtils::move(file.path, target_path)
+    end
+
+    def fulfill(data)
+      File::open(target_path, "w") do |file|
+        file.write(data)
+      end
+    end
+  end
+
+  class SatisfiableEnvTask < SatisfiableTask
+    setting :target_name
+
+    def criteria(task)
+      ENV.has_key?(target_name)
+    end
+
+    def fulfill(string)
+      ENV[target_name] = string
+    end
+  end
+
   #Ensures that all it's deps are satisfied before proceeding - the action for
   #ResolvingTasks is all about satisfying deps.
   #
@@ -19,32 +129,31 @@ module LogicalConstruct
   #You'll only be executed if #needed?
   #Deps will get invoked (ish) even if not #needed?
   module SatisfiableManager
+    include ReverseDependencies::Prerequisite
+
     def default_configuration(*configurables)
       super
       self.satisfiables = configurables.find_all do |conf|
         conf.is_a? SatisfiableTask
       end.map{|sat| sat.rake_task}
     end
-
-    def define
-      super
-      satisfiables.each do |sat|
-        sat.enhance([rake_task.name])
-      end
-    end
-
-    def add_satisfiable(task)
-      task = task.rake_task if task.respond_to? :rake_task
-      satisfiables << task
-      task.enhance([rake_task.name])
-    end
   end
 
   require 'yaml'
   require 'digest'
   module ResolutionProtocol
+    class DigestFailure < ::Exception
+
+    end
+
     def digest
       @digest ||= Digest::SHA2.new
+    end
+
+    def check_digest(checksum, path, target_path)
+      if file_checksum(path) != checksum
+        raise DigestFailure "Digest failure for #{target_path}"
+      end
     end
 
     def file_checksum(path)
@@ -62,8 +171,7 @@ module LogicalConstruct
     end
   end
 
-  class ResolvingTask < Rake::Task
-    include Mattock::TaskMixin
+  class ResolvingTask < Mattock::Rake::Task
     include SatisfiableManager
     setting :satisfiables, []
 
@@ -114,7 +222,7 @@ module LogicalConstruct
     end
   end
 
-  class GenerateManifest < Mattock::Task
+  class GenerateManifest < Mattock::Rake::Task
     include ResolutionProtocol
     setting :hash, {}
     setting :resolutions

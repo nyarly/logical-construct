@@ -7,9 +7,7 @@ module LogicalConstruct
   #Based on my reasoning about Rake (c.f. ResolvingTask):
   # Each ST should have a configured #needed? that checks it's responsibility
   # Execute needs to catch errors
-  class SatisfiableTask < Rake::Task
-    include Mattock::TaskMixin
-
+  class SatisfiableTask < Mattock::Rake::Task
     def execute(args=nil)
       super
       if application.options.trace and needed?

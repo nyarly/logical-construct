@@ -6,7 +6,7 @@ module LogicalConstruct
 
       settings(
         :remote_server => nested( :address => nil, :user => "root"),
-        :construct_dir => "/var/logical-construct"
+        :construct_dir => "/opt/logical-construct"
       )
       nil_fields :valise, :platform
 

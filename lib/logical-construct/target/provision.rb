@@ -7,7 +7,7 @@ module LogicalConstruct
     extend Mattock::ValiseManager
 
     settings(
-      :construct_dir => "/var/logical-construct",
+      :construct_dir => "/opt/logical-construct",
       :attr_source => nil,
       :config_path => nil
     )
@@ -16,7 +16,7 @@ module LogicalConstruct
     setting :search_paths, [rel_dir(__FILE__)]
 
     def resolve_configuration
-      self.valise = default_valise(search_paths)
+      self.valise = default_valise(search_paths) unless is_set?(:valise)
       self.construct_bin_path ||= File::expand_path("bin", construct_dir)
       self.construct_bin_path = File::absolute_path(construct_bin_path)
       super

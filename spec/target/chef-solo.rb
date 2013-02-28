@@ -39,7 +39,7 @@ describe LogicalConstruct::ChefSolo do
     it "should have the bundle path in the PATH" do
       expect_some_commands
       rake["chef_solo:run"].invoke
-      ENV['PATH'].should =~ %r{/var/logical-construct/bin}
+      ENV['PATH'].should =~ %r{/opt/logical-construct/bin}
     end
 
     it "should run chef-solo" do
