@@ -5,7 +5,7 @@ module TestAWS
   include LogicalConstruct
   include LogicalConstruct::Platform("AWS")
 
-  describe "VirtualBox platform" do
+  describe "VirtualBox platform", :pending => true do
     before :each do
       provision = Provision.new
 
@@ -26,7 +26,7 @@ module TestVirtualBox
   include LogicalConstruct
   include LogicalConstruct::Platform("VirtualBox")
 
-  describe "VirtualBox platform" do
+  describe "VirtualBox platform", :pending => true do
     before :each do
       provision = Provision.new
 

@@ -88,7 +88,7 @@ Gem::Specification.new do |spec|
   spec.rdoc_options	+= %w{--main doc/README }
   spec.rdoc_options	+= ["--title", "#{spec.name}-#{spec.version} RDoc"]
 
-  spec.add_dependency("mattock", ">= 0.3.4")
+  spec.add_dependency("mattock", ">= 0.4")
 
   spec.add_dependency("webmachine", ">= 1.1.0")
   spec.add_dependency("multipart-parser",">= 0.1.1")

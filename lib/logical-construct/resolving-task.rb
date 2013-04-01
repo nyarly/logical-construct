@@ -135,7 +135,7 @@ module LogicalConstruct
       super
       self.satisfiables = configurables.find_all do |conf|
         conf.is_a? SatisfiableTask
-      end.map{|sat| sat.rake_task}
+      end
     end
   end
 

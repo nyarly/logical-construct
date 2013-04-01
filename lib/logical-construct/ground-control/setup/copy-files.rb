@@ -1,7 +1,7 @@
 require 'mattock/command-task'
 
 module LogicalConstruct
-  class RemoteCopyFile < Mattock::CommandTask
+  class RemoteCopyFile < Mattock::Rake::CommandTask
     nil_fields :destination_address
     nil_fields :source_dir, :destination_dir, :basename
     required_fields :source_path, :destination_path
@@ -58,7 +58,7 @@ module LogicalConstruct
 
     def define
       in_namespace do
-        RemoteCopyFile.new(self, :construct_dir) do |task|
+        RemoteCopyFile.define_task(self, :construct_dir) do |task|
           task.runtime_definition do
             task.remote_server = remote_server
           end

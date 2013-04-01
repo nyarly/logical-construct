@@ -1,7 +1,7 @@
 require 'logical-construct/satisfiable-task'
 require 'logical-construct/target/sinatra-resolver'
 
-file = LogicalConstruct::SatisfiableFileTask.new do |file|
+file = LogicalConstruct::SatisfiableFileTask.define_task do |file|
   file.task_name = "testfile"
   file.target_path = "satisfaction-test/a_file"
 end
@@ -9,21 +9,21 @@ end
 directory "satisfaction-test"
 task :testfile => "satisfaction-test"
 
-env = LogicalConstruct::SatisfiableEnvTask.new do |env|
+env = LogicalConstruct::SatisfiableEnvTask.define_task do |env|
   env.task_name = "testenv"
   env.target_name = "LOGCON_TESTING"
 end
 
-manifest = LogicalConstruct::Manifest.new(file)
+manifest = LogicalConstruct::Manifest.define_task(file)
 
 require 'mattock/template-host'
 include Mattock::ValiseManager
-res = LogicalConstruct::SinatraResolver.new(manifest, file, env) do |res|
+res = LogicalConstruct::SinatraResolver.define_task(manifest, file, env) do |res|
   res.task_name = "resolve"
   res.valise = default_valise("lib")
 end
 
-manifester = LogicalConstruct::GenerateManifest.new(:make_manifest) do |manifest|
+manifester = LogicalConstruct::GenerateManifest.define_task(:make_manifest) do |manifest|
   manifest.paths["satisfaction-test/a_file"] = "satisfaction-test/source_file"
 end
 

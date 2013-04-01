@@ -72,7 +72,7 @@ describe LogicalConstruct::WebmachineResolver do
 
   let :test_valise do
     Valise.define do
-      ro Mattock::ValiseManager::rel_dir(nil, "spec")[0..-2] + ["lib"]
+      ro from_here("../../lib", up_to("spec"))
     end
   end
 

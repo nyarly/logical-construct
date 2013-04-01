@@ -53,7 +53,7 @@ module LogicalConstruct
       def build_representation
         rep = Representation.new
         rep.url_provider = url_provider
-        rep.valise = valise
+        rep.templates_are_in(valise)
         rep
       end
 
@@ -62,7 +62,7 @@ module LogicalConstruct
       end
 
       def to_html
-        representation.render("main-layout.html.erb") do |locals|
+        representation.render("main-layout.html") do |locals|
           locals[:content] = representation.render(html_template)
         end
       end
@@ -219,7 +219,7 @@ module LogicalConstruct
 
     module Resources
       class Navigation < ResolverResource
-        def html_template; "navigation.html.erb"; end
+        def html_template; "navigation.html"; end
       end
 
       class Need < ResolverResource
@@ -247,7 +247,7 @@ module LogicalConstruct
           representation[:need].receive_file(data["file"].last.path)
         end
 
-        def html_template; "need.html.erb"; end
+        def html_template; "need.html"; end
       end
 
       class NeedList < ResolverResource
@@ -275,7 +275,7 @@ module LogicalConstruct
           rep
         end
 
-        def html_template; "need-list.html.erb"; end
+        def html_template; "need-list.html"; end
       end
 
       class ResolvedNeedList < NeedList
@@ -302,7 +302,7 @@ module LogicalConstruct
           resolution_app.status = data.fetch("status")
         end
 
-        def html_template; "status.html.erb"; end
+        def html_template; "status.html"; end
 
         def build_representation
           rep = super

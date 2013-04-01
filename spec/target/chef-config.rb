@@ -2,7 +2,7 @@ require 'logical-construct/target/platforms'
 require 'mattock/testing/rake-example-group'
 require 'mattock/testing/mock-command-line'
 
-describe LogicalConstruct::VirtualBox::ChefConfig do
+describe LogicalConstruct::VirtualBox::ChefConfig, :pending => "provision" do
   include Mattock::RakeExampleGroup
   include Mattock::CommandLineExampleGroup
   include FileSandbox

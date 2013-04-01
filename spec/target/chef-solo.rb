@@ -3,7 +3,7 @@ require 'logical-construct/target/platforms'
 require 'mattock/testing/rake-example-group'
 require 'mattock/testing/mock-command-line'
 
-describe LogicalConstruct::ChefSolo do
+describe LogicalConstruct::ChefSolo, :pending => "Changeover to new provisioning" do
   include Mattock::RakeExampleGroup
   include FileSandbox
 

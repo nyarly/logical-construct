@@ -1,10 +1,10 @@
-require 'mattock/task-lib'
+require 'mattock/tasklib'
 require 'mattock/command-line'
 
 module LogicalConstruct
   module AWS
-    class Bake
-      include CommandLineDSL
+    class Bake < Mattock::Tasklib
+      include Mattock::CommandLineDSL
 
       default_namespace :bake
 

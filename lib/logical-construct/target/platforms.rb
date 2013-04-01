@@ -15,8 +15,12 @@ module LogicalConstruct
     missing_files = []
     PLATFORM_FILES.each do |file|
       begin
-        require File::join('logical-construct', 'target', 'platforms', platform, file)
-      rescue LoadError
+        platform_file = File::join('logical-construct', 'target', 'platforms', platform, file)
+        require platform_file
+      rescue LoadError => ex
+        unless /#{platform_file}/ =~ ex.message
+          raise
+        end
         missing_files << file
       end
     end
@@ -25,7 +29,7 @@ module LogicalConstruct
     PLATFORM_MODULES.each do |name|
       unless mod.const_defined?(name)
         default_klass = LogicalConstruct::Default.const_get(name)
-        raise NameError, "Missing default platform class LogicalConstruct::Default::#{name}"
+        raise NameError, "Missing default platform class LogicalConstruct::Default::#{name}" if default_klass.nil?
         klass = Class.new(default_klass)
         mod.const_set(name, klass)
       end

@@ -4,7 +4,7 @@ require 'mattock/command-task'
 
 module LogicalConstruct
   class SSHTunnel < Mattock::Tasklib
-    class CreateTask < Mattock::CommandTask
+    class CreateTask < Mattock::Rake::CommandTask
       default_taskname :create
 
       runtime_setting :tunnel_created, false
@@ -51,7 +51,7 @@ module LogicalConstruct
 
     end
 
-    class CancelTask < Mattock::CommandTask
+    class CancelTask < Mattock::Rake::CommandTask
       default_taskname :cancel
 
       setting :target_address
@@ -62,7 +62,7 @@ module LogicalConstruct
       end
     end
 
-    class CleanupTask < Mattock::Task
+    class CleanupTask < Mattock::Rake::Task
       default_taskname :cleanup
 
       runtime_setting :tunnel_created, false
@@ -91,16 +91,16 @@ module LogicalConstruct
 
     def define
       in_namespace do
-        create = CreateTask.new(self) do |create|
+        create = CreateTask.define_task(self) do |create|
           copy_settings_to(create)
         end
 
         desc "Close an existing SSH tunnel"
-        CancelTask.new(self) do |cancel|
+        CancelTask.define_task(self) do |cancel|
           copy_settings_to(cancel)
         end
 
-        CleanupTask.new do |cleanup|
+        CleanupTask.define_task do |cleanup|
           cleanup.tunnel_created = create.proxy_value.tunnel_created
           cleanup.cancel_taskname = self[:cancel]
         end

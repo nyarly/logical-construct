@@ -12,10 +12,19 @@ describe ATST do
     let :root_body do
       walker = ATST::Walker.new
       step = walker.start_walk("http://lrdesign.com/test-rdf")
+      step[[:foaf, :givenname]] = "Lester"
       step[[:dc, :date]] = Time.now
       step = step.node_at([:dc, :related], "http://lrdesign.com/test-rdf/sub")
       step[[:dc, :date]] = Time.now
-      puts walker.graph_dump(:ntriples)
+
+      walker.graph_dump(:rdfa)
+    end
+
+    let :second_body do
+      walker = ATST::Walker.new
+      step = walker.start_walk("http://lrdesign.com/test-rdf")
+      step[[:foaf, :givenname]] = "Foster"
+      step[[:dc, :date]] = Time.now
 
       walker.graph_dump(:rdfa)
     end
@@ -31,12 +40,23 @@ describe ATST do
     before :each do
       walker.http_client = test_client
       walker.get("http://lrdesign.com/test-rdf/")
-      puts walker.graph_dump(:ntriples)
     end
 
     it "should transmit properties" do
       step = walker.start_walk("http://lrdesign.com/test-rdf")
       step[:dc, :date].should be_an_instance_of(Time)
+    end
+
+    it "should replace previous statements from same URL" do
+      expect{
+        test_client.add_response(%r{\Ahttp://lrdesign.com/test-rdf/?\Z}) do |builder|
+          builder.body = second_body
+        end
+        walker.get("http://lrdesign.com/test-rdf/")
+      }.to change{
+        step = walker.start_walk("http://lrdesign.com/test-rdf")
+        step[:foaf, :givenname]
+      }
     end
   end
 

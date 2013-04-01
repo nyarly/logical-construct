@@ -1,4 +1,4 @@
-require 'mattock/task-lib'
+require 'mattock/tasklib'
 
 module LogicalConstruct
   class IncapableTasklib < Mattock::Tasklib

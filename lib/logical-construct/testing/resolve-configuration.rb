@@ -19,12 +19,12 @@ module LogicalConstruct
 
       def define
         in_namespace do
-          LogicalConstruct::Testing::ResolvingTask.new do |task|
+          LogicalConstruct::Testing::ResolvingTask.define_task do |task|
             task.task_name = "resolve"
             copy_settings_to(task)
           end
 
-          LogicalConstruct::Manifest.new()
+          LogicalConstruct::Manifest.define_task()
         end
       end
     end

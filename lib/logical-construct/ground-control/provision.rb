@@ -5,7 +5,7 @@ require 'logical-construct/resolving-task'
 module LogicalConstruct
   module GroundControl
     class Provision < Mattock::Tasklib
-      class WebConfigure < Mattock::Task
+      class WebConfigure < Mattock::Rake::Task
         include ResolutionProtocol
 
         setting :target_protocol, "http"
@@ -181,7 +181,7 @@ module LogicalConstruct
             cmd("tar", "--exclude .git", "--exclude **/*.sw?", "-czf", cookbooks.tarball_path, cookbooks.path).must_succeed!
           end
 
-          manifest = LogicalConstruct::GenerateManifest.new(self, :manifest =>
+          manifest = LogicalConstruct::GenerateManifest.define_task(self, :manifest =>
                                                             [
                                                               cookbooks.tarball_path,
                                                               secret_data.tarball_path,
@@ -191,7 +191,7 @@ module LogicalConstruct
             manifest.receiving_name = "configuration:Manifest"
           end
 
-          WebConfigure.new(:web_configure => [:collect, :build_json_attribs, :manifest, cookbooks.tarball_path]) do |task|
+          WebConfigure.define_task(:web_configure => [:collect, :build_json_attribs, :manifest, cookbooks.tarball_path]) do |task|
             self.proxy_settings_to(task)
             task.target_address = proxy_value.target_address
           end

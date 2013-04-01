@@ -95,7 +95,7 @@ module LogicalConstruct
           #XXX Consider switching to "runlevel 1" or something like it
           #    (Although also that networking will be stopped
 
-          CommandTask.new do |bundle|
+          CommandTask.define_task do |bundle|
             bundle.task_name = :bundle_volume
             bundle.command =
               cmd("ec2-bundle-vol",
@@ -110,7 +110,7 @@ module LogicalConstruct
             end
           end
 
-          CommandTask.new do |upload|
+          CommandTask.define_task do |upload|
             upload.task_name = :upload_bundle
             upload.command =
               cmd("ec2-upload-bundle",
@@ -122,7 +122,7 @@ module LogicalConstruct
           end
           task :upload_bundle => :bundle_volume
 
-          CommandTask.new do |register|
+          CommandTask.define_task do |register|
             register.task_name = :register_ami
             register.command =
               cmd("ec2-register",

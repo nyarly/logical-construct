@@ -8,7 +8,7 @@ module ATST
       builder = TestResponseBuilder.new
       builder.regexp = regexp
       yield builder
-      @patterns << builder
+      @patterns.unshift builder
       return builder
     end
 

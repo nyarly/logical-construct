@@ -18,7 +18,7 @@ module LogicalConstruct
     def remote_task(name, comment = nil)
       in_namespace do
         desc comment unless comment.nil?
-        Mattock::RemoteCommandTask.new(name) do |task|
+        Mattock::Rake::RemoteCommandTask.define_task(name) do |task|
           task.ssh_options += SSH_OPTIONS
 
           task.runtime_definition do |task|

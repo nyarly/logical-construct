@@ -61,15 +61,15 @@ module LogicalConstruct
           directory file_cache_path.absolute_path
 
           #TODO Convert to Unpack Tasklibs
-          Mattock::CommandTask.new(:unpack_cookbooks => :cookbook_tarball) do |task|
+          Mattock::CommandTask.define_task(:unpack_cookbooks => :cookbook_tarball) do |task|
             task.command = cmd("cd", file_cache.absolute_path) & cmd("tar", "-xzf", cookbook_tarball.absolute_path)
           end
 
-          Mattock::CommandTask.new(:unpack_secret_data => :secret_data_tarball) do |task|
+          Mattock::CommandTask.define_task(:unpack_secret_data => :secret_data_tarball) do |task|
             task.command = cmd("cd", file_cache.absolute_path) & cmd("tar", "-xzf", secret_data_tarball.absolute_path)
           end
 
-          Mattock::CommandTask.new(:unpack_normal_data => :normal_data_tarball) do |task|
+          Mattock::CommandTask.define_task(:unpack_normal_data => :normal_data_tarball) do |task|
             task.command = cmd("cd", file_cache.absolute_path) & cmd("tar", "-xzf", normal_data_tarball.absolute_path)
           end
 
@@ -83,7 +83,7 @@ module LogicalConstruct
             [:cookbook_tarball, cookbook_tarball],
             [:secret_data_tarball, secret_data_tarball],
             [:normal_data_tarball, normall_data_tarball] ].each do |task_name, target_file|
-            resolution.add_file(SatisfiableFileTask.new(task_name => file_cache.absolute_path) do |task|
+            resolution.add_file(SatisfiableFileTask.define_task(task_name => file_cache.absolute_path) do |task|
               task.target_path = target_file.absolute_path
             end)
             end

@@ -31,9 +31,9 @@ module LogicalConstruct
 
       def define
         in_namespace do
-          @manifest = LogicalConstruct::Manifest.new(*@pending_satisfiables)
+          @manifest = LogicalConstruct::Manifest.define_task(*@pending_satisfiables)
 
-          @resolver = LogicalConstruct::SinatraResolver.new(*([@manifest] + @pending_satisfiables)) do |task|
+          @resolver = LogicalConstruct::SinatraResolver.define_task(*([@manifest] + @pending_satisfiables)) do |task|
             copy_settings_to(task)
           end
           @pending_satisfiables.clear

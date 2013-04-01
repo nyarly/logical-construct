@@ -64,7 +64,7 @@ module LogicalConstruct
           task.base_name = "Gemfile"
         end
 
-        Mattock::BundleCommandTask.new(:standalone => gemfile.target_path) do |bundle_build|
+        Mattock::BundleCommandTask.define_task(:standalone => gemfile.target_path) do |bundle_build|
           bundle_build.command = (
             cmd("cd", target_dir) &
             cmd("bundle", "install"){|bundler|

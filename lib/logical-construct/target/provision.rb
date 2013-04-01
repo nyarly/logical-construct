@@ -16,7 +16,7 @@ module LogicalConstruct
     setting :search_paths, [rel_dir(__FILE__)]
 
     def resolve_configuration
-      self.valise = default_valise(search_paths) unless is_set?(:valise)
+      self.valise = Valise::read_only(search_paths) if unset?(:valise)
       self.construct_bin_path ||= File::expand_path("bin", construct_dir)
       self.construct_bin_path = File::absolute_path(construct_bin_path)
       super
