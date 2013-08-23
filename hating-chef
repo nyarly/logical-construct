@@ -1,0 +1,32 @@
+Notes about tasks that Chef performs:
+
+Install software (i.e. emerge <thing>)
+Template configs (w/o regard to changes)
+Edit files (not using patch)
+Create files (a la GNU install), directories
+
+Doesn't: manage archives (tarballs)
+
+
+
+So, tasks that would be nice:
+emerge (or apt-get or ...)
+template files
+apply patches
+edit files? (still seems dicey)
+create files/directories like GNU install does
+unpack tarballs
+manage symlinks
+VCS checkouts
+
+restart/start/enable services
+
+run arbitrary shell commands (as little as possible)
+  (Maybe just: template a file, run bash (file))
+
+
+One thing Chef does that's useful is "notifies ... :delayed" - basically tasks that are only needed if this one is, but happen later
+So: a Task type (mixin) that is #needed? based on a boolean - by default, not, but other tasks can say something like arm that:other:task ->
+Rake::application[that:other:task].needed = true. Order of execution determined by dependency.
+
+For package installs, consider /etc/portage/sets

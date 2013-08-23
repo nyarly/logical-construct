@@ -72,7 +72,7 @@ describe LogicalConstruct::WebmachineResolver do
 
   let :test_valise do
     Valise.define do
-      ro from_here("../../lib", up_to("spec"))
+      ro from_here("../lib", up_to("spec"))
     end
   end
 

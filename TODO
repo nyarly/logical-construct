@@ -1,8 +1,11 @@
 --- Current showstoppers (pre-share with Evan/LRD)
 
+Current provisioning can't handle symlink for cookbooks dir
+
 [written] SSH tunnelling for provision - ideally including a local HTTP proxy of all servers in need
 
 Chef: multiple cookbooks (e.g. LRD base + Client deploy)
+Manifest patching (the Stanford NLP problem)
 
 [written] Bless(/bake) instances
 
@@ -24,6 +27,47 @@ the /mnt directory.  Should be able to re-run chef without duplicating mounts
 
 --- Features
 
+Quick target management tasks:
+  Collect server IPs into file(s)
+  template shell scripts in related files/dirs
+  rake target_management:restart_sidekiq <- auto from script name
+
+  Also: Some tasks might amount to "run same task name on target"
+  (Most should migrate there.) So: see if it's there, and run it if it is.
+  (Instead of local?) Hm. Would be exposed as form on the LC web service
+
+VBox provisioning test mode - normally vbox should be === normal deploy. Also
+good would be a mode where cookbooks dirs from host machine are mounted at
+client so that they can be edited locally vagrant style
+  Once you start down that path, might as well look into mounting code
+  directory as well...
+
+Like to do smaller provisioning chunks. SB has 100+MB files in their cookbooks,
+and transmitting the whole thing is torturous.
+  One solution would be multiple cookbook-things that get fused somehow A tool
+  to produce those things (basically an install pack) would be helpful.
+  I think git could be used to produce them without having to be the distribution
+  channel - basically diff the last one etc.
+
+  Separate provision volumes makes sense from the perspective of bridging
+  projects (i.e. the LRD base volume, the LRD NLP volume, the SB special
+  volume) and then patches for each.
+
+  Distinct packages (filelists intersections are empty sets)
+  Ensure a "rakelib" dir exists.
+  Target: `rake provision` pulls in package rake tasks - standard hooks
+  Means: a "chef" package to make sure gems are installed, and set up chef hooks
+    Then "cookbook" packages hook into the chef stuff to configure chef in memory before the chef tasks write configs and run
+
+
+Non-file platform provisioning requirements of the server-
+  notably volumes: perhaps "I need X GB with on (device/label)"
+    The userdata solution ... change the instance device mapping config
+    At which point, a chef recipe could mount them on the right place
+  maybe extra NICs? GPU?
+  "this OS installed. portage version=..."
+  listed on the provisioning web service, and PUT means "check again"
+
 Arrange deployment vs. application code... related at all?
   related to:
 "Compile" (rails) app into deployable - assets:precompile on deployment servers is silly.
@@ -33,6 +77,7 @@ AWS resolutions:
   from S3?
 
 Resolution chains - "look at instance metadata, then S3, then start Sinatra"
+  Needs to also be "loops" - "Sinatra got a resolution, but that changed the needs list - recheck"
 
 Resolution manifests - all Satisfiables "needed" unless they match the manifest (if the manifest task is present...)
 
@@ -54,6 +99,8 @@ Integrate with ... something for instance management
 
 Update LC on provisioned box (aot go back to nascent and re-setup)
 
+Cascading rakelib dirs - especially for the case of adding commands that loop on/pick a server.
+
 --- Nice to have (usually easy)
 
 [written] Decompose into 2 tasklibs the ChefConfig tasklib - something like UnpackTarballs and ConfigureChef
@@ -72,6 +119,12 @@ LC init task should start a "status/report" server on complete - maybe just sing
 
 --- Gentoo related
 
+After initial deploy, /usr/src/linux not needed
+
+sqlite version of md5cache
+
+/usr/portage should be an external mount (not just distfiles/packages) because the md5cache is huge.
+
 Consider S3 as a PORTAGE_BINHOST - should be possible to do installs on a machine, then mirror /usr/portage/packages to S3, especially if the metadata in S3 is such that we don't re-upload packages we pulled down to do the build.
 
 Binhost needs to be related to arch, CHOST, CFLAGS, processor USE flags (MXX, SSE, ???)
@@ -80,6 +133,7 @@ How to deal with portage?  Open questions:
   eix-sync
   & syncing /usr/portage
   & updating portage
+    I think the real answer here is that "version of portage" is a non-file provisioning requirement. U2D system is really a not a touchless problem, IMO. Does imply a smaller/staged deployment, if only to get mounts.
   Maybe: "how long since last sync? and if more than (days) sync, update portage"
   man emerge: "emerge-webrsync pulls one tbz which is faster for first-time"
   How long to last: emerge --info includes "Timestamp of tree"

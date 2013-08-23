@@ -15,7 +15,7 @@ module LogicalConstruct
     attr_accessor :valise, :model
 
     def build_app
-      templates_valise = @valise.sub_set(%w{ templates webmachine-resolver })
+      templates_valise = @valise.templates("templates/webmachine-resolver")
 
       web_app = Webmachine::Application.new do |app|
         app.routes do
@@ -53,7 +53,7 @@ module LogicalConstruct
       def build_representation
         rep = Representation.new
         rep.url_provider = url_provider
-        rep.templates_are_in(valise)
+        rep.valise = valise
         rep
       end
 

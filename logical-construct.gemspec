@@ -90,7 +90,7 @@ Gem::Specification.new do |spec|
 
   spec.add_dependency("mattock", ">= 0.4")
 
-  spec.add_dependency("webmachine", ">= 1.1.0")
+  spec.add_dependency("roadforest", "~> 0.0.1")
   spec.add_dependency("multipart-parser",">= 0.1.1")
   spec.add_dependency("sinatra", ">= 1.3.3")
   spec.add_dependency("rest-client", ">= 1.6.7")
