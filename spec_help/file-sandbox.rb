@@ -22,9 +22,9 @@ module FileSandbox
     def matches?(target)
       case @contents
       when Regexp
-	@contents =~ target.contents
+        @contents =~ target.contents
       when String
-	@contents == target.contents
+        @contents == target.contents
       end
     end
   end
@@ -134,22 +134,28 @@ module FileSandbox
       "SandboxFile: #@sandbox_path"
     end
 
+    def realpath
+      File::readlink(@path)
+    rescue Errno::EINVAL, Errno::ENOENT
+      @path
+    end
+
     def exist?
-      File.exist? path
+      File.exist? realpath
     end
 
     def content
-      File.read path
+      File.read realpath
     end
 
     def content=(content)
       FileUtils.mkdir_p File.dirname(@path)
-      File.open(@path, "w") {|f| f << content}
+      File.open(realpath, "w") {|f| f << content}
     end
 
     def binary_content=(content)
       FileUtils.mkdir_p File.dirname(@path)
-      File.open(@path, "wb") {|f| f << content}
+      File.open(realpath, "wb") {|f| f << content}
     end
 
     def create

@@ -101,6 +101,11 @@ Update LC on provisioned box (aot go back to nascent and re-setup)
 
 Cascading rakelib dirs - especially for the case of adding commands that loop on/pick a server.
 
+git management for plan dirs: commit to a local branch-name (e.g.
+"jdl-deployed") with a tag of the Manifest ID, push to repo, so that others
+able to reproduce the details of a deploy. Obviously would need a "don't git
+publish" for "secret plans" e.g. github secret keys etc.
+
 --- Nice to have (usually easy)
 
 [written] Decompose into 2 tasklibs the ChefConfig tasklib - something like UnpackTarballs and ConfigureChef

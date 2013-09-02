@@ -32,7 +32,6 @@ module LogicalConstruct
       end
 
       def already_created
-        p :testing_created
         cmd("ssh", "-o ControlMaster=auto", "-O check", target_address).succeeds?
       end
 
@@ -69,8 +68,6 @@ module LogicalConstruct
       setting :cancel_taskname
 
       def needed?
-        p self
-        p :created => tunnel_created
         return !!tunnel_created
       end
 

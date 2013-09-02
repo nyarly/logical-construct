@@ -139,38 +139,6 @@ module LogicalConstruct
     end
   end
 
-  require 'yaml'
-  require 'digest'
-  module ResolutionProtocol
-    class DigestFailure < ::Exception
-
-    end
-
-    def digest
-      @digest ||= Digest::SHA2.new
-    end
-
-    def check_digest(checksum, path, target_path)
-      if file_checksum(path) != checksum
-        raise DigestFailure "Digest failure for #{target_path}"
-      end
-    end
-
-    def file_checksum(path)
-      generate_checksum(File::read(path))
-    end
-
-    def generate_checksum(data)
-      digest.reset
-      digest << data
-      digest.hexdigest
-    end
-
-    def web_path(task_name)
-      "/" + task_name.gsub(":", "/")
-    end
-  end
-
   class ResolvingTask < Mattock::Rake::Task
     include SatisfiableManager
     setting :satisfiables, []
@@ -219,31 +187,6 @@ module LogicalConstruct
           File::rename(path, path + ".invalid")
         end
       end
-    end
-  end
-
-  class GenerateManifest < Mattock::Rake::Task
-    include ResolutionProtocol
-    setting :hash, {}
-    setting :resolutions
-    setting :receiving_name
-
-    def default_configuration(resolution_host)
-      super
-      self.resolutions = resolution_host.resolutions
-    end
-
-    def data_checksum(path, data)
-      hash[path] = generate_checksum(data)
-    end
-
-    def action
-      resolutions.each_pair do |destination, data|
-        data = data.call if data.respond_to? :call
-        data = data.read if data.respond_to? :read
-        hash[destination] = generate_checksum(data)
-      end
-      resolutions[receiving_name] = YAML::dump(hash)
     end
   end
 end

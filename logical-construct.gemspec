@@ -34,6 +34,7 @@ Gem::Specification.new do |spec|
     lib/logical-construct/target/chef-solo.rb
     lib/logical-construct/target/unpack-cookbook.rb
     lib/logical-construct/target/sinatra-resolver.rb
+    lib/logical-construct/ground-control.rb
     lib/logical-construct/ground-control/core.rb
     lib/logical-construct/ground-control/run-on-target.rb
     lib/logical-construct/ground-control/setup/copy-files.rb
@@ -88,12 +89,11 @@ Gem::Specification.new do |spec|
   spec.rdoc_options	+= %w{--main doc/README }
   spec.rdoc_options	+= ["--title", "#{spec.name}-#{spec.version} RDoc"]
 
+  spec.add_dependency("rake", "~> 10.0")
   spec.add_dependency("mattock", ">= 0.4")
 
   spec.add_dependency("roadforest", "~> 0.0.1")
   spec.add_dependency("multipart-parser",">= 0.1.1")
-  spec.add_dependency("sinatra", ">= 1.3.3")
-  spec.add_dependency("rest-client", ">= 1.6.7")
   spec.add_dependency("nokogiri", ">= 0.13.4")
   spec.add_dependency("json")
 end
