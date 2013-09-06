@@ -27,6 +27,7 @@ module LogicalConstruct::ResolutionServer
     it "should add a record" do
       record = records.add("test", "000000")
       record.should_not be_nil
+      records.count.should == 1
       records.find("test").should == record
     end
 

@@ -1,23 +1,7 @@
-require 'roadforest/remote-host'
-require 'logical-construct/protocol'
+require 'logical-construct/node-client'
 
 module LogicalConstruct
   class GenerateManifest < Mattock::Tasklib
-    class ManifestBuilder
-      include Protocol::PlanValidation
-      def initialize(graph_focus)
-        @graph_focus = graph_focus
-      end
-
-      def add(plan)
-        @graph_focus.as_list.append_node("##{plan.name}") do |node|
-          node[[:rdf, "type"]]   = [:lc, "Need"]
-          node[ [:lc, "name"]]   = plan.name
-          node[ [:lc, "digest"]] = file_checksum(plan.archive)
-        end
-      end
-    end
-
     default_namespace :manifest
 
     setting :plan_archives, []
@@ -42,7 +26,7 @@ module LogicalConstruct
 
           graph = ::RDF::Graph.new
           focus = RoadForest::RDF::GraphFocus.new(base_url, graph)
-          builder = ManifestBuilder.new(focus)
+          builder = NodeClient::ManifestBuilder.new(focus)
 
           plan_archives.each do |archive|
             builder.add(archive)
@@ -57,17 +41,14 @@ module LogicalConstruct
         end
 
         task :deliver do |task|
-          node = RoadForest::RemoteHost.new(node_url)
-          node.putting do |root|
-            needs = root.all(:skos, "hasTopConcept").find do |concept|
-              concept[:skos, "label"] = "Needs"
-            end.first(:foaf, "page")
+          client = NodeClient.new
+          client.node_url = node_url
+          client.plan_archives = plan_archives
+          client.deliver_manifest
+        end
 
-            builder = ManifestBuilder.new(needs)
-            plan_archives.each do |archive|
-              builder.add(archive)
-            end
-          end
+        task :fulfill do |task|
+
         end
       end
       task self[:dump] => root_task

@@ -7,6 +7,8 @@ module LogicalConstruct
     class Application < RoadForest::Application
       def setup
         router.add  :root,              [],                    :read_only,  Models::Navigation
+        router.add  :status,            ["status"],            :read_only,  Models::ServerStatus
+        router.add  :manifest,          ["manifest"],          :leaf,       Models::ServerManifest
         router.add  :unresolved_plans,  ["unresolved_plans"],  :parent,     Models::UnresolvedPlansList
         router.add  :full_plans,        ["full_plans"],        :parent,     Models::FullPlansList
         router.add  :plan,              ["plans",'*'],         :leaf,       Models::Plan
@@ -39,20 +41,46 @@ module LogicalConstruct
         def nav_entry(graph, name, path)
           graph.add_node([:skos, :hasTopConcept], "#" + name) do |entry|
             entry[:rdf, :type] = [:skos, "Concept"]
-            entry[:skos, :label] = name
+            entry[:skos, :prefLabel] = name
             entry[:foaf, "page"] = path
           end
         end
 
         def fill_graph(graph)
           graph[:rdf, "type"] = [:skos, "ConceptScheme"]
+          nav_entry(graph, "Server Manifest", path_for(:manifest))
           nav_entry(graph, "Unresolved Plans", path_for(:unresolved_plans))
-          nav_entry(graph, "All Plans", path_for(:unresolved_plans))
+          nav_entry(graph, "All Plans", path_for(:full_plans))
         end
       end
 
+      class ServerStatus < RoadForest::RDFModel
+        def fill_graph(graph)
+          graph[[:lc, "node-state"]] = services.plan_records.total_state
+        end
+      end
 
-      class PlansList < RoadForest::RDFModel
+      class ServerManifest < RoadForest::RDFModel
+        def fill_graph(graph)
+          graph.add_list(:lc, "plans") do |list|
+            services.plan_records.each do |record|
+              list << path_for(:plan, '*' => record.name)
+            end
+          end
+        end
+
+        def graph_update(graph)
+          services.plan_records.reset!
+
+          graph[:lc, "plans"].as_list.each do |plan|
+            services.plan_records.add(plan.first(:lc, "name"), plan.first(:lc, "hash"))
+          end
+
+          fill_graph(start_graph)
+        end
+      end
+
+      class FullPlansList < RoadForest::RDFModel
         def exists?
           true
         end
@@ -61,8 +89,7 @@ module LogicalConstruct
         end
 
         def add_child(graph)
-          record = services.plan_records.add(graph.first(:lc, "name"), graph.first(:lc, "hash"))
-          record.resolve
+          services.plan_records.add(graph.first(:lc, "name"), graph.first(:lc, "hash"))
         end
 
         def plan_records
@@ -82,16 +109,6 @@ module LogicalConstruct
         def plan_records
           #recheck resolution?
           services.plan_records.find_all{|record| !record.resolved}
-        end
-      end
-
-      class FullPlansList < PlansList
-        def update(graph)
-          services.plan_records.reset
-
-          graph.as_list.each do |plan|
-            add_child(plan)
-          end
         end
       end
 

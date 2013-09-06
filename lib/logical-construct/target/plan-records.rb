@@ -44,6 +44,12 @@ module LogicalConstruct
         end
       end
 
+      def total_state
+        return "no-plans-yet" if @records.empty?
+        return "resolved" if @records.all?(:resolved?)
+        return "unresolved"
+      end
+
       def find(name)
         record = @records.find{|record| record.name == name}
       end
@@ -55,12 +61,17 @@ module LogicalConstruct
       def add(name, hash)
         record = States::Unresolved.new(self, Record.new(name, hash))
         @records << record
+        record.resolve
         record
       end
 
-      def change(old_state, new_state)
+      def change(old_state, new_state_class)
+        new_state = new_state_class.new(self, old_state.record)
         @records.delete(old_state)
-        @records << new_state.new(self, old_state.record)
+        @records << new_state
+
+        new_state.enter
+        return new_state
       end
     end
 
@@ -71,9 +82,19 @@ module LogicalConstruct
 
         def initialize(records, record)
           @records, @record = records, record
-          enter
         end
         attr_reader :record
+
+        def inspect
+          "#<#{self.class.name}:#{"0x%0x"%object_id} #{record.name}:#{record.filehash}>"
+        end
+
+        def ==(other)
+          return (other.class.equal?(self.class) and
+                  other.name.equal?(self.name) and
+                  other.filehash.equal?(self.filehash))
+        end
+
 
         def name
           @record.name
