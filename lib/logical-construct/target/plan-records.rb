@@ -46,7 +46,7 @@ module LogicalConstruct
 
       def total_state
         return "no-plans-yet" if @records.empty?
-        return "resolved" if @records.all?(:resolved?)
+        return "resolved" if @records.all?(&:resolved?)
         return "unresolved"
       end
 
@@ -62,15 +62,19 @@ module LogicalConstruct
         record = States::Unresolved.new(self, Record.new(name, hash))
         @records << record
         record.resolve
-        record
+        return find(name)
       end
 
       def change(old_state, new_state_class)
+        unless old_state.alive?
+          raise "Tried to change from old invalid state: #{old_state}"
+        end
         new_state = new_state_class.new(self, old_state.record)
         @records.delete(old_state)
         @records << new_state
 
         new_state.enter
+        old_state.cancel!
         return new_state
       end
     end
@@ -86,10 +90,12 @@ module LogicalConstruct
         attr_reader :record
 
         def inspect
-          "#<#{self.class.name}:#{"0x%0x"%object_id} #{record.name}:#{record.filehash}>"
+          "#<#{self.class.name}:#{"0x%0x"%object_id} #{name||"dead"}:#{filehash}>"
         end
 
         def ==(other)
+          return true if self.equal?(other)
+          return false if !self.alive? or !other.alive?
           return (other.class.equal?(self.class) and
                   other.name.equal?(self.name) and
                   other.filehash.equal?(self.filehash))
@@ -97,10 +103,12 @@ module LogicalConstruct
 
 
         def name
+          return nil unless alive?
           @record.name
         end
 
         def filehash
+          return nil unless alive?
           @record.filehash
         end
 
@@ -108,6 +116,11 @@ module LogicalConstruct
         end
 
         def cancel!
+          @record = nil
+        end
+
+        def alive?
+          !@record.nil?
         end
 
         def exists?(path)
@@ -151,11 +164,11 @@ module LogicalConstruct
         end
 
         def resolve
-          raise "Cannot resolve plan in current state: #{state}"
+          warn "Cannot resolve plan in current state: #{state}"
         end
 
         def receive
-          raise "Cannot receive file in current state: #{state}"
+          warn "Cannot receive file in current state: #{state}"
         end
 
         def state
@@ -177,6 +190,11 @@ module LogicalConstruct
         end
 
         def enter
+          unless alive?
+            super
+            return false
+          end
+
           unless exists?(received_path)
             return false
           end
@@ -188,7 +206,6 @@ module LogicalConstruct
           if actual_hash == filehash
             FileUtils.cp(received_path.readlink, current_path.to_s)
             change(Resolved)
-            return true
           else
             received_path.delete
             return false
@@ -197,6 +214,10 @@ module LogicalConstruct
         alias receive enter
 
         def resolve
+          unless alive?
+            super
+            return false
+          end
           change(Resolving)
         end
       end
