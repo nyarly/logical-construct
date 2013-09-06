@@ -1,4 +1,5 @@
 require 'fileutils'
+require 'thread'
 require 'logical-construct/protocol'
 
 module LogicalConstruct
@@ -23,6 +24,7 @@ module LogicalConstruct
       Directories = Struct.new(:delivered, :current, :stored)
 
       def initialize
+        @record_lock = Mutex.new
         @records = []
         @directories = Directories.new(nil, nil, nil)
       end
@@ -59,9 +61,16 @@ module LogicalConstruct
       end
 
       def add(name, hash)
-        record = States::Unresolved.new(self, Record.new(name, hash))
-        @records << record
+        record = nil
+        @record_lock.synchronize do
+          if @records.any?{|record| record.name == name}
+            raise "Cannot add a second plan requirement for #{name}"
+          end
+          record = States::Unresolved.new(self, Record.new(name, hash))
+          @records << record
+        end
         record.resolve
+
         return find(name)
       end
 
@@ -70,11 +79,14 @@ module LogicalConstruct
           raise "Tried to change from old invalid state: #{old_state}"
         end
         new_state = new_state_class.new(self, old_state.record)
-        @records.delete(old_state)
-        @records << new_state
 
+        @record_lock.synchronize do
+          @records.delete(old_state)
+          @records << new_state
+          old_state.cancel!
+        end
         new_state.enter
-        old_state.cancel!
+
         return new_state
       end
     end
@@ -174,6 +186,10 @@ module LogicalConstruct
         def state
           self.class.name.sub(/.*::/,'').downcase
         end
+
+        def join
+          return
+        end
       end
 
       class Unresolved < PlanState
@@ -223,12 +239,27 @@ module LogicalConstruct
       end
 
       class Resolving < PlanState
-        def enter
-          stored_path = storage_path_for(record.filehash)
-          if exists?(stored_path) and not (exists?(received_path) or symlink?(received_path))
-            FileUtils.symlink(stored_path, received_path)
+        def cancel!
+          unless @thread.nil?
+            if @working
+              @thread.kill
+            end
           end
-          change(Unresolved)
+          super
+        end
+
+        def join
+          super if @thread.nil?
+          @thread.join
+        end
+
+        def enter
+          @working = true
+          @thread = Thread.new do
+            ResolutionMethods.run_all(self)
+            @working = false
+            change(Unresolved)
+          end
         end
       end
 
@@ -238,5 +269,59 @@ module LogicalConstruct
         end
       end
     end
+
+    module ResolutionMethods
+      class << self
+        def resolution_methods
+          @methods ||= []
+        end
+
+        def add_method(name, klass)
+          resolution_methods << [name, klass]
+        end
+
+        def run_all(state)
+          resolution_methods.each do |name, klass|
+            klass.new(state).run
+          end
+        end
+      end
+
+      class ResolutionMethod
+        include Protocol::PlanValidation
+        include FileTest
+
+        def self.register(name)
+          ResolutionMethods.add_method(name, self)
+        end
+
+        def exists?(path)
+          super(realpath(path))
+        end
+
+        def initialize(state)
+          @state = state
+        end
+        attr_reader :state
+
+        def run
+
+        end
+      end
+
+      class LocalStorage < ResolutionMethod
+        register :local_storage
+
+        def run
+          stored_path = state.storage_path_for(state.record.filehash)
+          received_path = state.received_path
+
+          if exists?(stored_path) and not (exists?(received_path) or symlink?(received_path))
+            FileUtils.symlink(stored_path, received_path)
+          end
+        end
+      end
+    end
+
   end
 end

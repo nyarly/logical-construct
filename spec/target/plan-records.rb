@@ -30,10 +30,23 @@ module LogicalConstruct::ResolutionServer
       record.should_not be_nil
       records.count.should == 1
       record = records.find("test")
+      record.join
+      record = records.find("test")
       record.state.should == "unresolved"
       record.name.should == "test"
       record.filehash.should == "000000"
       records.total_state.should == "unresolved"
+    end
+
+    it "should reject a duplicate add" do
+      record = records.add("test", "000000")
+      expect do
+        records.add("test", "000000")
+      end.to raise_error
+
+      expect do
+        records.add("test", "ffffff")
+      end.to raise_error
     end
 
     describe "single record" do
@@ -53,8 +66,11 @@ module LogicalConstruct::ResolutionServer
 
       it "should receive a new file" do
         record = records.add("test", filehash)
+        record.join
+
         sandbox.new :file => "delivered/test", :with_contents => file_contents
 
+        record = records.find("test")
         record.receive.should be_a(LogicalConstruct::ResolutionServer::States::PlanState)
         File.read("current/test").should == file_contents
         File.exists?("delivered/test").should be_false
@@ -71,6 +87,7 @@ module LogicalConstruct::ResolutionServer
 
       it "should reject new files when resolved" do
         record = records.add("test", filehash)
+        record.join
 
         sandbox.new :file => "delivered/test", :with_contents => file_contents
         records.find("test").receive
@@ -94,6 +111,9 @@ module LogicalConstruct::ResolutionServer
 
       it "should resolve an old file" do
         record = records.add("test", filehash)
+        record.join
+        record = records.find("test")
+
         sandbox.new :file => "delivered/test", :with_contents => file_contents
         record.receive
 
@@ -102,7 +122,7 @@ module LogicalConstruct::ResolutionServer
         File.exists?("delivered/test").should be_false
 
         record = records.add("test", filehash)
-        record.resolve
+        records.find("test").join
 
         File.read("current/test").should == file.contents
         File.exists?("delivered/test").should be_false
