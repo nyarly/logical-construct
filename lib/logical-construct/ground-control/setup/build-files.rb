@@ -64,15 +64,6 @@ module LogicalConstruct
           task.base_name = "Gemfile"
         end
 
-        Mattock::BundleCommandTask.define_task(:standalone => gemfile.target_path) do |bundle_build|
-          bundle_build.command = (
-            cmd("cd", target_dir) &
-            cmd("bundle", "install"){|bundler|
-            bundler.options << "--standalone"
-            bundler.options << "--binstubs=bin"
-          })
-        end
-
         rakefile = ConfigBuilder.new(self) do |task|
           task.base_name = "Rakefile"
         end
@@ -83,6 +74,15 @@ module LogicalConstruct
           task.runtime_definition do
             task.extra[:platform] = platform
           end
+        end
+
+        Mattock::BundleCommandTask.define_task(:standalone => gemfile.target_path) do |bundle_build|
+          bundle_build.command = (
+            cmd("cd", target_dir) &
+            cmd("bundle", "install"){|bundler|
+            bundler.options << "--standalone"
+            bundler.options << "--binstubs=bin"
+          })
         end
       end
       task root_task => [rakefile.target_path] + in_namespace(:standalone)

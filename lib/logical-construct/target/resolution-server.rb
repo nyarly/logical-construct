@@ -1,10 +1,11 @@
 require 'rdf/vocab/skos'
+require 'roadforest/server'
 require 'logical-construct/protocol'
 require 'logical-construct/target/plan-records'
 
 module LogicalConstruct
   module ResolutionServer
-    class Application < RoadForest::Application
+    class Application < ::RoadForest::Application
       def setup
         router.add  :root,              [],                    :read_only,  Models::Navigation
         router.add  :status,            ["status"],            :read_only,  Models::ServerStatus
@@ -24,7 +25,7 @@ module LogicalConstruct
       end
 
       def destination_dir
-        plan_records.directories.delivery
+        plan_records.directories.delivered
       end
     end
 
@@ -51,12 +52,17 @@ module LogicalConstruct
           nav_entry(graph, "Server Manifest", path_for(:manifest))
           nav_entry(graph, "Unresolved Plans", path_for(:unresolved_plans))
           nav_entry(graph, "All Plans", path_for(:full_plans))
+          nav_entry(graph, "Current Status", path_for(:status))
         end
       end
 
       class ServerStatus < RoadForest::RDFModel
+        def data
+          services.plan_records.total_state
+        end
+
         def fill_graph(graph)
-          graph[[:lc, "node-state"]] = services.plan_records.total_state
+          graph[[:lc, "node-state"]] = data
         end
       end
 
@@ -73,10 +79,10 @@ module LogicalConstruct
           services.plan_records.reset!
 
           graph[:lc, "plans"].as_list.each do |plan|
-            services.plan_records.add(plan.first(:lc, "name"), plan.first(:lc, "hash"))
+            services.plan_records.add(plan.first(:lc, "name"), plan.first(:lc, "digest"))
           end
 
-          fill_graph(start_graph)
+          new_graph
         end
       end
 
@@ -89,7 +95,7 @@ module LogicalConstruct
         end
 
         def add_child(graph)
-          services.plan_records.add(graph.first(:lc, "name"), graph.first(:lc, "hash"))
+          services.plan_records.add(graph.first(:lc, "name"), graph.first(:lc, "digest"))
         end
 
         def plan_records
@@ -105,16 +111,17 @@ module LogicalConstruct
         end
       end
 
-      class UnresolvedPlansList < PlansList
+      class UnresolvedPlansList < FullPlansList
         def plan_records
           #recheck resolution?
-          services.plan_records.find_all{|record| !record.resolved}
+          services.plan_records.find_all{|record| !record.resolved?}
         end
       end
 
       class PlanContent < RoadForest::BlobModel
         add_type "text/plain", TypeHandlers::Handler.new
         add_type "application/octet-stream", TypeHandlers::Handler.new
+        add_type "application/x-gtar-compressed", TypeHandlers::Handler.new
 
         def update(file)
           name = params.remainder
@@ -125,19 +132,19 @@ module LogicalConstruct
           super(file)
 
           record.receive
+
+          nil
         end
       end
 
       class Plan < RoadForest::RDFModel
         def data
-          @data = services.plan_records.find do |record|
-            record.name == params.remainder
-          end
+          @data = services.plan_records.find(params.remainder)
         end
 
         def fill_graph(graph)
           graph[[:lc, "name"]] = data.name
-          graph[[:lc, "hash"]] = data.filehash
+          graph[[:lc, "digest"]] = data.filehash
           graph[[:lc, "contents"]] = path_for(:file_content)
         end
       end

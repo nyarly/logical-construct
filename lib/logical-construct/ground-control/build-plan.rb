@@ -1,21 +1,26 @@
 require 'logical-construct/ground-control'
 require 'mattock/tasklib'
+require 'logical-construct/archive-tasks'
 
 module LogicalConstruct::GroundControl
   class BuildPlan < Mattock::Tasklib
-    include Mattock::Configurable::DirectoryStructure
     include Mattock::CommandLineDSL
 
     default_namespace :build_plan
 
-    dir(:plan_source, "source",   path(:plan))
-    dir(:marshalling, "marshall", path(:listfile), path(:archive))
-
-    setting :plan_filelist
-    setting :exclude_list, ["**/*.sw?"]
-    setting :name
-    setting :extension, "tbz"
     setting :manifest_task
+
+    dir(:plan_source, "source",
+        dir(:plan, path(:plan_rakefile, "plan.rake")))
+    dir(:marshalling, "marshall",
+        dir(:plan_temp,
+            dir(:synced, "sync")))
+
+    setting :source_pattern, "**/*"
+    setting :exclude_patterns, ["**/*.sw[p-z]"]
+    setting :basename
+
+    setting :synced_files
 
     def default_configuration(provisioning)
       super
@@ -25,53 +30,66 @@ module LogicalConstruct::GroundControl
     end
 
     def resolve_configuration
-      fail_unless_set(:name)
-      plan.relative_path ||= name
-
-      self.extension = extension.sub(/^[.]/, "")
-
-      archive.relative_path ||= "#{name}.#{extension}"
-      listfile.relative_path ||= "#{name}.list"
+      fail_unless_set(:basename)
+      plan.relative_path ||= basename
+      plan_temp.relative_path ||= basename
 
       resolve_paths
 
-      self.plan_filelist ||= FileList[plan.absolute_path + "/**"]
-      exclude_list.each do |exclusion|
-        plan_filelist.exclude(exclusion)
-      end
+      self.synced_files =
+        begin
+          pattern = File::join(plan.absolute_path, source_pattern)
+          list = FileList[pattern]
+          exclude_patterns.each do |pattern|
+            list.exclude(pattern)
+          end
+          list.map do |path|
+            synced.pathname.join(Pathname.new(path).relative_path_from(plan.pathname)).to_s
+          end
+        end
 
       super
     end
 
+    def archive_path
+      @pack.archive.absolute_path
+    end
+
     def define
       super
-      in_namespace do
-        file listfile.absolute_path => [Rake.application.rakefile, marshalling.absolute_path] + plan_filelist do |task|
-          require 'pathname'
-          source_pathname = Pathname.new(plan_source.absolute_path)
-          plan_files = plan_filelist.map do |path|
-            Pathname.new(path).relative_path_from source_pathname
-          end
 
-          File::open(listfile.absolute_path, "w") do |list|
-            list.write(plan_files.join("\n"))
-          end
+      in_namespace do
+        task :compile do
+          (cmd("cd", plan.absolute_path) & cmd("rake", "--rakefile", plan_rakefile.absolute_path, "construct:compile")).must_succeed!
         end
 
-        file archive.absolute_path => [Rake.application.rakefile, marshalling.absolute_path] + plan_filelist + [listfile.absolute_path] do |task|
-          (
-            cmd("cd", plan_source.absolute_path) &
-            cmd("tar",
-                "--exclude-vcs",
-                "--create",
-                "--auto-compress",
-                "--file=" + archive.absolute_path,
-                "--files-from=" + listfile.absolute_path)
-          ).must_succeed!
+        file_create synced.absolute_path do |dir|
+          cmd("mkdir", "-p", dir.name).must_succeed!
+        end
+
+        #This looks absurd, but otherwise we need to make sure that no compile
+        #task creates a new file it doesn't need. `bundle standalone` already
+        #does, so...
+        task :rsync_artifacts => [synced.absolute_path, :compile] do
+          from_dir = plan.absolute_path
+          from_dir += "/" unless from_dir =~ %r"/$"
+
+          to_dir = synced.absolute_path
+          to_dir += "/" unless to_dir =~ %r"/$"
+
+          cmd("rsync", "-v", "-rlpgo", "--checksum", from_dir, to_dir).must_succeed!
+        end
+
+        synced_files.each do |path|
+          file path => :rsync_artifacts
+        end
+
+        @pack = ::LogicalConstruct::PackTarball.new do |pack|
+          copy_settings_to(pack)
+          pack.source_files = synced_files
+          pack.unpacked_dir.absolute_path = synced.absolute_path
         end
       end
-
-      task manifest_task => archive.absolute_path
     end
   end
 end

@@ -16,3 +16,33 @@ Things Ground control should be able to do:
 
 * Given a target server with Ruby and SSH, set it up as a particular role.
 * (I.e: SSH and deliver files, install gems, locked to GC version)
+
+Three basic tools:
+
+Construct: delivers and executes provisioning plans (which themselves may be "use Chef to...")
+  (coupling point: construct manifest)
+
+AWS toolkit: scripts for handling a bunch of instances, including:
+  * starting with user data
+  * expanding credentials (i.e. from u/p to full set of keypairs and
+    certs and things)
+  * baking and migrating images
+  * putting instances into and out of LB.
+
+  (coupling point: server database - consider (initialially) SQLite)
+
+Remote management: run (command) with (set of servers) as targets. Including
+curl/rsync or ssh -c "(command)" - cap or vlad may be Good Enough for this
+already?
+  * servers: an address + metadata
+  * metadata:
+    - hosting environment (AWS/vbox)
+    - deployment type (prod/staging/etc)
+    - deployment role (app/db/etc)
+    - ...
+  * metadata used to:
+    - select servers to run commands against
+    - restrict command that can be run against a server
+    - included into command template
+  (coupling point (to construct): construct <role>:provision[<server from
+  set>])

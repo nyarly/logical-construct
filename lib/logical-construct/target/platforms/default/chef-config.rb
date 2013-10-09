@@ -8,7 +8,6 @@ module LogicalConstruct
     #XXX Should get broken into at least 2 smaller tasklibs
     class ChefConfig < Mattock::Tasklib
       include Mattock::TemplateHost
-      include DirectoryStructure
 
       default_namespace :chef_config
 

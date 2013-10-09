@@ -4,19 +4,6 @@ require 'logical-construct/protocol'
 
 module LogicalConstruct
   module ResolutionServer
-    #Dirs:
-    #Delivery destination
-    #Local storage
-    #Current plan archives
-    #(Live unpacked plans)
-
-    #clear existing plans
-    #stash existing plans
-    #wipe existing plan_dir
-    #loop over nodes, creating plans for each
-
-    #drive resolution on each? Long request if means e.g. pulling 200M
-    #from S3...
     class PlanRecords
       include Enumerable
 
@@ -41,7 +28,9 @@ module LogicalConstruct
       alias reset reset!
 
       def clear_files(directory)
-        Pathname.new(directory).each_child do |delivered|
+        dirpath = Pathname.new(directory)
+        dirpath.mkpath
+        dirpath.each_child do |delivered|
           delivered.delete
         end
       end
@@ -199,6 +188,7 @@ module LogicalConstruct
 
         def store_received_file(actual_hash)
           stored_path = storage_path_for(actual_hash)
+          FileUtils.mkdir_p(stored_plans_dir)
           unless exists?(stored_path)
             FileUtils.mv(received_path, stored_path)
             FileUtils.symlink(stored_path, received_path)

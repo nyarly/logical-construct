@@ -6,12 +6,18 @@ module LogicalConstruct
 
     setting :plan_archives, []
     setting :graph_format, :jsonld
-    setting :target_address
+    setting :target_address, 'localhost'
+    setting :target_port, 51076
 
     def default_configuration(provision)
       super
       self.plan_archives = provision.proxy_value.plan_archives
       self.target_address = provision.proxy_value.target_address
+      self.target_port = provision.proxy_value.local_target_port
+    end
+
+    def node_url
+      "http://#{target_address}:#{target_port}"
     end
 
     def define
@@ -48,7 +54,10 @@ module LogicalConstruct
         end
 
         task :fulfill do |task|
-
+          client = NodeClient.new
+          client.node_url = node_url
+          client.plan_archives = plan_archives
+          client.deliver_plans
         end
       end
       task self[:dump] => root_task

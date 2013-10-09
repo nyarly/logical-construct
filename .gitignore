@@ -9,3 +9,4 @@ test_platform.rb
 corundum/
 pkg/
 satisfaction-test/
+errors.err

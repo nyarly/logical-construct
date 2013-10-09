@@ -1,0 +1,26 @@
+NEEDED:
+
+* verify task that checks that all plan task deps exist
+  - Ground Control can then set up an implement child and run verify before manifest
+  - includes something like plan:version (e.g. chef:10.10.14) that exists just so that deps can be tracked and resolved
+* File dep for BundleStandalone - Gemfile.lock -> Gemfile ?
+* flight-deck needs to be broken into smaller tasklibs
+* unique-task should be promoted to Mattock
+* corundum QA on plans?
+* exponential random backoff for finding an open port for the SSH forwarding
+
+* Node's server still needs log files/post resolution state
+  - so that ground control knows when provisioned server is done.
+* Non-push resolutions. S3, for instance.
+* AWS userdata manifests
+
+* Random occassional SSH fails - hangs during background commands, but only sometimes
+
+DONE:
+* StandaloneBundler is the only place we need gem_scope
+* flight-deck needs a switch to change its own targets
+  - Ground control needs to make sure the server is running,
+    deliver manifest, then start a full flight-deck
+* flight-deck cleanup needs to be sequenced properly and actually run
+* Ground control needs to add an rsync step to building plans - otherwise they're always archived (bundler unconditionally creates bundler/setup.rb)
+* flight-deck needs to mirror some of its options to the child Implement - e.g. --tasks and --prereqs

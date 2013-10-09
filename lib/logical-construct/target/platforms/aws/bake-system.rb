@@ -37,8 +37,6 @@ require 'mattock/tasklib'
 module LogicalConstruct
   module AWS
     class BakeSystem < Mattock::Tasklib
-      include DirectoryStructure
-
       runtime_setting :ami_name, "image"
 
       #XXX Varies by bake - nascent -> set-up vs. set-up -> provisioned or

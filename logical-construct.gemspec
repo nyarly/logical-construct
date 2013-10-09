@@ -69,6 +69,7 @@ Gem::Specification.new do |spec|
   spec.licenses = ["MIT"]
   spec.require_paths = %w[lib/]
   spec.rubygems_version = "1.3.5"
+  spec.executables = %w{flight-deck}
 
   if spec.respond_to? :specification_version then
     current_version = Gem::Specification::CURRENT_SPECIFICATION_VERSION

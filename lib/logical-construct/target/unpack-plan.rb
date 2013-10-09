@@ -8,7 +8,7 @@ module LogicalConstruct
       :unpack_plan
     end
 
-    def default_settings(provision)
+    def default_configuration(provision)
       settings(
         :construct_dir => provision.construct_dir,
         :cookbook_metadata => nil,
@@ -18,7 +18,7 @@ module LogicalConstruct
       )
     end
 
-    def resolve_settings
+    def resolve_configuration
       self.cookbook_archive ||= File::join(construct_dir, "cookbook.tbz")
       self.cookbook_dir ||= File::join(construct_dir, cookbook_name)
 
