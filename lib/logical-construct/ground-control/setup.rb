@@ -47,7 +47,4 @@ module LogicalConstruct
   end
 end
 
-require 'logical-construct/ground-control/setup/build-files'
-require 'logical-construct/ground-control/setup/create-construct-directory'
 require 'logical-construct/ground-control/setup/copy-files'
-require 'logical-construct/ground-control/setup/install-init'

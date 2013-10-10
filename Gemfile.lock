@@ -1,13 +1,29 @@
 PATH
   remote: .
   specs:
-    logical-construct (0.0.5)
+    logical-construct (0.1.0)
       json
       mattock (~> 0.5)
       multipart-parser (>= 0.1.1)
       nokogiri (>= 0.13.4)
       rake (~> 10.0)
       roadforest (~> 0.0.2)
+
+PATH
+  remote: ../../gems/corundum/
+  specs:
+    corundum (0.1.1)
+      bundler
+      compass (>= 0.12.1)
+      mailfactory (~> 1.4.0)
+      mattock (>= 0.4.0)
+      nokogiri
+      rake-rubygems (>= 0.2.0)
+      rdoc
+      rspec (>= 2.0)
+      sass (>= 3.1)
+      simplecov (>= 0.5.4)
+      yard
 
 GEM
   remote: http://rubygems.org/
@@ -23,18 +39,6 @@ GEM
       chunky_png (~> 1.2)
       fssm (>= 0.2.7)
       sass (~> 3.1)
-    corundum (0.1.0)
-      bundler
-      compass (>= 0.12.1)
-      mailfactory (~> 1.4.0)
-      mattock (>= 0.4.0)
-      nokogiri
-      rake-rubygems (>= 0.2.0)
-      rdoc
-      rspec (>= 2.0)
-      sass (>= 3.1)
-      simplecov (>= 0.5.4)
-      yard
     diff-lcs (1.2.4)
     excon (0.27.1)
     fssm (0.2.10)
@@ -102,6 +106,6 @@ PLATFORMS
 
 DEPENDENCIES
   cadre
-  corundum
+  corundum!
   fuubar
   logical-construct!

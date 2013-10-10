@@ -24,7 +24,7 @@ describe LogicalConstruct::NodeClient do
 
   let :plan_archives do
     %w{one two three}.map do |name|
-      LogicalConstruct::PlanRecord.new(name, "#{source_dir}/#{name}.tbz")
+      "#{source_dir}/#{name}.tbz"
     end
   end
 

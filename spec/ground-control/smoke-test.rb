@@ -1,10 +1,12 @@
 require 'logical-construct/ground-control'
+require 'mattock/testing/rake-example-group'
 
 module LogicalConstruct::GroundControl
   describe "An example Rakefile" do
+    include Mattock::RakeExampleGroup
+    include LogicalConstruct::GroundControl
 
     before :each do
-      include LogicalConstruct::GroundControl
 
       namespace :example do
         provision = Provision.new

@@ -10,3 +10,6 @@ corundum/
 pkg/
 satisfaction-test/
 errors.err
+.cadre/
+roadforest.log
+spec_help/fixtures/destination/

@@ -1,6 +1,6 @@
 Gem::Specification.new do |spec|
   spec.name		= "logical-construct"
-  spec.version		= "0.0.5"
+  spec.version		= "0.1.0"
   author_list = {
     "Judson Lester" => "nyarly@gmail.com"
   }
@@ -18,49 +18,50 @@ Gem::Specification.new do |spec|
   # Do this: y$@"
   # !!find lib bin doc spec spec_help -not -regex '.*\.sw.' -type f 2>/dev/null
   spec.files		= %w[
+    lib/logical-construct/plan/core.rb
+    lib/logical-construct/plan/standalone-bundle.rb
+    lib/logical-construct/template-file.rb
+    lib/logical-construct/node-client.rb
+    lib/logical-construct/port-open-check.rb
     lib/logical-construct/ground-control.rb
+    lib/logical-construct/archive-tasks.rb
     lib/logical-construct/target.rb
-    lib/logical-construct/satisfiable-task.rb
-    lib/logical-construct/testing/resolve-configuration.rb
-    lib/logical-construct/testing/resolving-task.rb
-    lib/logical-construct/target/platforms.rb
-    lib/logical-construct/target/platforms/default/volume.rb
-    lib/logical-construct/target/platforms/default/chef-config.rb
-    lib/logical-construct/target/platforms/default/resolve-configuration.rb
-    lib/logical-construct/target/platforms/aws.rb
-    lib/logical-construct/target/platforms/virtualbox/volume.rb
-    lib/logical-construct/target/platforms/virtualbox.rb
-    lib/logical-construct/target/provision.rb
-    lib/logical-construct/target/chef-solo.rb
-    lib/logical-construct/target/unpack-cookbook.rb
-    lib/logical-construct/target/sinatra-resolver.rb
-    lib/logical-construct/ground-control.rb
+    lib/logical-construct/target/plan-records.rb
+    lib/logical-construct/target/unpack-plan.rb
+    lib/logical-construct/target/Implement.rake
+    lib/logical-construct/target/command-line.rb
+    lib/logical-construct/target/implementation.rb
+    lib/logical-construct/target/flight-deck.rb
+    lib/logical-construct/target/resolution-server.rb
     lib/logical-construct/ground-control/core.rb
     lib/logical-construct/ground-control/run-on-target.rb
     lib/logical-construct/ground-control/setup/copy-files.rb
-    lib/logical-construct/ground-control/setup/build-files.rb
-    lib/logical-construct/ground-control/setup/create-construct-directory.rb
-    lib/logical-construct/ground-control/setup/install-init.rb
     lib/logical-construct/ground-control/provision.rb
+    lib/logical-construct/ground-control/build-plan.rb
+    lib/logical-construct/ground-control/generate-manifest.rb
+    lib/logical-construct/ground-control/tools.rb
     lib/logical-construct/ground-control/setup.rb
-    lib/logical-construct/resolving-task.rb
-    lib/templates/construct.init.d.erb
-    lib/templates/resolver/index.html.erb
-    lib/templates/resolver/finished.html.erb
-    lib/templates/resolver/task-form.html.erb
-    lib/templates/resolver/task-file-form.html.erb
+    lib/logical-construct/protocol.rb
+    lib/logical-construct/protocol/ssh-tunnel.rb
+    lib/logical-construct/protocol/node-client.rb
+    lib/logical-construct/protocol/vocabulary.rb
+    lib/logical-construct/protocol/plan-validation.rb
+    lib/logical-construct/plan.rb
     lib/templates/Gemfile.erb
-    lib/templates/chef.rb.erb
     lib/templates/Rakefile.erb
-    spec/resolution.rb
-    spec/target/platforms.rb
-    spec/target/chef-solo.rb
-    spec/target/smoke-test.rb
-    spec/target/chef-config.rb
+    bin/flight-deck
+    doc/TODO
+    doc/DESIGN
+    spec/node_resolution.rb
+    spec/target/plan-records.rb
+    spec/target/provisioning.rb
     spec/ground-control/smoke-test.rb
     spec_help/spec_helper.rb
     spec_help/gem_test_suite.rb
-    spec_help/ungemmer.rb
+    spec_help/fixtures/Manifest
+    spec_help/fixtures/source/three.tbz
+    spec_help/fixtures/source/two.tbz
+    spec_help/fixtures/source/one.tbz
     spec_help/mock-resolve.rb
     spec_help/file-sandbox.rb
   ]

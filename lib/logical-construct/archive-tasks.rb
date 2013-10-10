@@ -200,9 +200,10 @@ module LogicalConstruct
           end
         end
 
-        PackTarballTask.define_task(archive.absolute_path => [Rake.application.rakefile, marshalling.absolute_path] + source_files + [listfile.absolute_path]) do |task|
+        PackTarballTask.define_task(archive.absolute_path => [marshalling.absolute_path] + source_files + [listfile.absolute_path]) do |task|
           copy_settings_to(task)
         end
+        task archive.absolute_path => Rake.application.rakefile unless Rake.application.rakefile.nil?
       end
     end
   end
