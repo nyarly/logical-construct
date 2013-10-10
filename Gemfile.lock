@@ -3,23 +3,11 @@ PATH
   specs:
     logical-construct (0.0.5)
       json
-      mattock (>= 0.4)
+      mattock (~> 0.5)
       multipart-parser (>= 0.1.1)
       nokogiri (>= 0.13.4)
       rake (~> 10.0)
-      roadforest (~> 0.0.1)
-
-PATH
-  remote: ../../gems/roadforest
-  specs:
-    roadforest (0.0.1)
-      addressable (~> 2.2.8)
-      excon (~> 0.25)
-      json-ld (~> 1.0.0)
-      rdf (= 1.0.6)
-      tilt (>= 1.3.6)
-      valise (>= 0.9.1)
-      webmachine (>= 1.1.0)
+      roadforest (~> 0.0.2)
 
 GEM
   remote: http://rubygems.org/
@@ -35,7 +23,7 @@ GEM
       chunky_png (~> 1.2)
       fssm (>= 0.2.7)
       sass (~> 3.1)
-    corundum (0.0.31)
+    corundum (0.1.0)
       bundler
       compass (>= 0.12.1)
       mailfactory (~> 1.4.0)
@@ -48,7 +36,7 @@ GEM
       simplecov (>= 0.5.4)
       yard
     diff-lcs (1.2.4)
-    excon (0.25.3)
+    excon (0.27.1)
     fssm (0.2.10)
     fuubar (1.0.0)
       rspec (~> 2.0)
@@ -61,12 +49,12 @@ GEM
       rdf (>= 1.0)
     mailfactory (1.4.0)
       mime-types (>= 1.13.1)
-    mattock (0.4.1)
+    mattock (0.5.0)
       tilt (> 0)
       valise (>= 0.9.1)
-    mime-types (1.24)
+    mime-types (1.25)
     mini_portile (0.5.1)
-    multi_json (1.7.9)
+    multi_json (1.8.1)
     multipart-parser (0.1.1)
     nokogiri (1.6.0)
       mini_portile (~> 0.5.0)
@@ -77,17 +65,25 @@ GEM
       addressable (>= 2.2)
     rdoc (4.0.1)
       json (~> 1.4)
+    roadforest (0.0.2)
+      addressable (~> 2.2.8)
+      excon (~> 0.25)
+      json-ld (~> 1.0.0)
+      rdf (= 1.0.6)
+      tilt (>= 1.3.6)
+      valise (>= 0.9.1)
+      webmachine (>= 1.1.0)
     rspec (2.14.1)
       rspec-core (~> 2.14.0)
       rspec-expectations (~> 2.14.0)
       rspec-mocks (~> 2.14.0)
     rspec-core (2.14.5)
-    rspec-expectations (2.14.2)
+    rspec-expectations (2.14.3)
       diff-lcs (>= 1.1.3, < 2.0)
     rspec-instafail (0.2.4)
     rspec-mocks (2.14.3)
     ruby-progressbar (0.0.10)
-    sass (3.2.10)
+    sass (3.2.12)
     simplecov (0.7.1)
       multi_json (~> 1.0)
       simplecov-html (~> 0.7.1)
@@ -95,11 +91,11 @@ GEM
     thor (0.18.1)
     tilt (1.4.1)
     valise (1.0.0)
-    webmachine (1.2.0)
+    webmachine (1.2.1)
       as-notifications (~> 1.0)
       i18n (>= 0.4.0)
       multi_json
-    yard (0.8.7)
+    yard (0.8.7.2)
 
 PLATFORMS
   ruby
@@ -109,4 +105,3 @@ DEPENDENCIES
   corundum
   fuubar
   logical-construct!
-  roadforest!

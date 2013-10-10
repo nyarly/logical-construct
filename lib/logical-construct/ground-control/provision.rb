@@ -46,9 +46,11 @@ module LogicalConstruct
             start_flight.command =
               Mattock::CommandLine.new("nohup",
                                        "/opt/logical-construct/bin/flight-deck",
-                                       "-C start_server",
-                                       "&",
-                                       "echo server started")
+                                       "-C start_server")
+            start_flight.command.redirect_stdin("/dev/null")
+            start_flight.command.redirect_stdout("/opt/logical-construct/flight_deck_server.log")
+            start_flight.command.copy_stream_to(2, 1)
+            start_flight.command.redirections << "&"
           end
 
           start_resolution = Mattock::Rake::RemoteCommandTask.define_task(:start_resolution => :deliver_manifest) do |start_flight|
@@ -56,14 +58,19 @@ module LogicalConstruct
             start_flight.verbose = 3
             start_flight.command =
               Mattock::CommandLine.new("nohup",
-                                       "/opt/logical-construct/bin/flight-deck",
-                                       "&",
-                                       "echo done")
+                                       "/opt/logical-construct/bin/flight-deck")
+            #TODO: Mattock CommandLine needs a "background"
+            #TODO: RemoteCommandTask should wrap the whole
+            #nohup-redirect-background thing
+            start_flight.command.redirect_stdin("/dev/null")
+            start_flight.command.redirect_stdout("/opt/logical-construct/flight_deck.log")
+            start_flight.command.copy_stream_to(2, 1)
+            start_flight.command.redirections << "&"
           end
 
           task manifest.root_task => :collect
 
-          task_spine(:start_flight, :deliver_manifest, :start_resolution, :fulfill_manifest, :complete_provision)
+          task_spine(:start_flight, :deliver_manifest, :fulfill_manifest, :start_resolution, :complete_provision)
           task :deliver_manifest => manifest[:deliver]
           task :fulfill_manifest => manifest[:fulfill]
 

@@ -91,9 +91,9 @@ Gem::Specification.new do |spec|
   spec.rdoc_options	+= ["--title", "#{spec.name}-#{spec.version} RDoc"]
 
   spec.add_dependency("rake", "~> 10.0")
-  spec.add_dependency("mattock", ">= 0.4")
+  spec.add_dependency("mattock", "~> 0.5")
+  spec.add_dependency("roadforest", "~> 0.0.2")
 
-  spec.add_dependency("roadforest", "~> 0.0.1")
   spec.add_dependency("multipart-parser",">= 0.1.1")
   spec.add_dependency("nokogiri", ">= 0.13.4")
   spec.add_dependency("json")

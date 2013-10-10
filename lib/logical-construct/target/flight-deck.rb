@@ -220,7 +220,7 @@ module LogicalConstruct
 
                 if(plan_dirs.pathname.exist?)
                   plan_dirs.pathname.children(true).each do |dir|
-                    next if retain.include?(dir)
+                    next if retain.include?(dir.realpath)
                     cmd("rm", "-rf", dir.to_s).run
                   end
                 end
@@ -270,7 +270,6 @@ module LogicalConstruct
                     plan_file = unpack_task.unpacked_dir.pathname.join("plan.rake")
                     file plan_file
 
-                    puts "\n#{__FILE__}:#{__LINE__} => #{unpack_task.target_files.inspect}"
                     task :install => unpack_task.target_files do
                       source_path = unpack_task.unpacked_dir.pathname
                       if (install_rake = source_path.join("plan.rake")).exist?

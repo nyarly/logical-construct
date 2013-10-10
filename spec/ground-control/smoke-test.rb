@@ -4,15 +4,14 @@ module LogicalConstruct::GroundControl
   describe "An example Rakefile" do
 
     before :each do
-      extend LogicalConstruct::GroundControl
-      core = Core.new
+      include LogicalConstruct::GroundControl
 
-      setup = Setup.new(core)
-      setup.default_subtasks
-
-      provision = Provision.new(core) do |prov|
-        prov.marshalling_path = "marshall"
+      namespace :example do
+        provision = Provision.new
+        provision.plans("test")
       end
+
+      tools = Tools.new
     end
 
     it "should load without error" do
