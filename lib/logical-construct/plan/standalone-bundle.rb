@@ -24,6 +24,12 @@ module LogicalConstruct
       def define
         directory gems.absolute_path
 
+        #TODO: Experiment with
+        #
+        #bundle install
+        #bundle package --all
+        #....
+        #bundle install --local
         in_namespace do
           #bundler unconditionally re-produces bundle/setup.rb, which means
           #that plans that use this tasklib will always be re-packed, even when

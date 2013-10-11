@@ -25,7 +25,6 @@ Gem::Specification.new do |spec|
     lib/logical-construct/port-open-check.rb
     lib/logical-construct/ground-control.rb
     lib/logical-construct/archive-tasks.rb
-    lib/logical-construct/target.rb
     lib/logical-construct/target/plan-records.rb
     lib/logical-construct/target/unpack-plan.rb
     lib/logical-construct/target/Implement.rake
@@ -43,7 +42,6 @@ Gem::Specification.new do |spec|
     lib/logical-construct/ground-control/setup.rb
     lib/logical-construct/protocol.rb
     lib/logical-construct/protocol/ssh-tunnel.rb
-    lib/logical-construct/protocol/node-client.rb
     lib/logical-construct/protocol/vocabulary.rb
     lib/logical-construct/protocol/plan-validation.rb
     lib/logical-construct/plan.rb
@@ -92,7 +90,7 @@ Gem::Specification.new do |spec|
   spec.rdoc_options	+= ["--title", "#{spec.name}-#{spec.version} RDoc"]
 
   spec.add_dependency("rake", "~> 10.0")
-  spec.add_dependency("mattock", "~> 0.5")
+  spec.add_dependency("mattock", "~> 0.5.2")
   spec.add_dependency("roadforest", "~> 0.0.2")
 
   spec.add_dependency("multipart-parser",">= 0.1.1")

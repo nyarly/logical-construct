@@ -38,6 +38,7 @@ describe LogicalConstruct::NodeClient do
     LogicalConstruct::NodeClient.new.tap do |client|
       client.server = server
       client.plan_archives = plan_archives
+      client.silent = true
       #client.server.graph_transfer.trace = true
     end
   end

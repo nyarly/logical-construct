@@ -22,7 +22,7 @@ module LogicalConstruct
         in_namespace do
           namespace :create_plan do
             rule %r{\A#{plans_dir}/[^/]*\Z} do |task, args|
-              cmd("mkdir", "-p", task.name).must_succeed!
+              cmd("mkdir", "-p", task.name).must_succeed! #ok
             end
 
             rule(%r{\A#{plans_dir}/[^/]*/plan\.rake\Z}, [:name] => ['%d']) do |task, args|

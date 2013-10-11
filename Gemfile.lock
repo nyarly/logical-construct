@@ -3,7 +3,7 @@ PATH
   specs:
     logical-construct (0.1.0)
       json
-      mattock (~> 0.5)
+      mattock (~> 0.5.2)
       multipart-parser (>= 0.1.1)
       nokogiri (>= 0.13.4)
       rake (~> 10.0)
@@ -12,13 +12,12 @@ PATH
 PATH
   remote: ../../gems/corundum/
   specs:
-    corundum (0.1.1)
+    corundum (0.1.2)
       bundler
       compass (>= 0.12.1)
       mailfactory (~> 1.4.0)
       mattock (>= 0.4.0)
       nokogiri
-      rake-rubygems (>= 0.2.0)
       rdoc
       rspec (>= 2.0)
       sass (>= 3.1)
@@ -40,7 +39,7 @@ GEM
       fssm (>= 0.2.7)
       sass (~> 3.1)
     diff-lcs (1.2.4)
-    excon (0.27.1)
+    excon (0.27.2)
     fssm (0.2.10)
     fuubar (1.0.0)
       rspec (~> 2.0)
@@ -53,7 +52,7 @@ GEM
       rdf (>= 1.0)
     mailfactory (1.4.0)
       mime-types (>= 1.13.1)
-    mattock (0.5.0)
+    mattock (0.5.2)
       tilt (> 0)
       valise (>= 0.9.1)
     mime-types (1.25)
@@ -63,8 +62,6 @@ GEM
     nokogiri (1.6.0)
       mini_portile (~> 0.5.0)
     rake (10.1.0)
-    rake-rubygems (0.2.0)
-      rake (>= 0.8.7)
     rdf (1.0.6)
       addressable (>= 2.2)
     rdoc (4.0.1)

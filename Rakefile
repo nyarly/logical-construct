@@ -6,10 +6,11 @@ module Corundum
   end
 
   tk.in_namespace do
+    QuestionableContent.new(tk)
     sanity = GemspecSanity.new(tk)
     rspec = RSpec.new(tk)
     cov = SimpleCov.new(tk, rspec) do |cov|
-      cov.threshold = 70
+      cov.threshold = 63
     end
     gem = GemBuilding.new(tk)
     cutter = GemCutter.new(tk,gem)

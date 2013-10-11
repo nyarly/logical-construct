@@ -120,7 +120,7 @@ module LogicalConstruct
     default_taskname :unpack_tarball
 
     def command
-      (cmd("mkdir", "-p", unpacked_dir.absolute_path) & tar_command("--extract"))
+      (cmd("mkdir", "-p", unpacked_dir.absolute_path) & tar_command("--extract")) #ok
     end
 
     def target_files
@@ -157,7 +157,7 @@ module LogicalConstruct
     setting :extension, "tbz"
     setting :source_files
     setting :source_pattern, "**/*"
-    setting :exclude_patterns, ['**/*.sw[p-z]']
+    setting :exclude_patterns, ['**/*.sw[p-z]'] #ok
 
     def resolve_configuration
       listfile.relative_path ||= "#{basename}.list"

@@ -73,8 +73,6 @@ module LogicalConstruct
       end
 
       def add_options(options)
-        #require 'pp'; puts "\n#{__FILE__}:#{__LINE__} =>
-        ##{options.pretty_inspect}"
         return options + [
           [ "--control-task", "-C TASK",
             "Alter the tasks run by flight-deck itself (rather than task run by the plans)",
@@ -85,12 +83,7 @@ module LogicalConstruct
       end
 
       def standard_rake_options
-        begin
         sort_options( add_options( forward_to_plans( mirror_to_plans( super))))
-        rescue => ex
-          p ex.class, ex.message
-          puts ex.backtrace
-        end
       end
     end
   end

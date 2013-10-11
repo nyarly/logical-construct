@@ -17,7 +17,7 @@ module LogicalConstruct::GroundControl
             dir(:synced, "sync")))
 
     setting :source_pattern, "**/*"
-    setting :exclude_patterns, ["**/*.sw[p-z]"]
+    setting :exclude_patterns, ["**/*.sw[p-z]"] #ok
     setting :basename
 
     setting :synced_files
@@ -64,7 +64,7 @@ module LogicalConstruct::GroundControl
         end
 
         file_create synced.absolute_path do |dir|
-          cmd("mkdir", "-p", dir.name).must_succeed!
+          cmd("mkdir", "-p", dir.name).must_succeed! #ok
         end
 
         #This looks absurd, but otherwise we need to make sure that no compile

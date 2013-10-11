@@ -23,7 +23,7 @@ module LogicalConstruct
         in_namespace do
           desc "List the search paths for files used by ground control"
           task :search_paths do
-            p valise
+            p valise #ok
           end
         end
       end

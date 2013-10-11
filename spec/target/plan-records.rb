@@ -6,6 +6,15 @@ module LogicalConstruct::ResolutionServer
   describe LogicalConstruct::ResolutionServer::PlanRecords do
     include FileSandbox
 
+    before :all do
+      @original_verbose = $VERBOSE
+      $VERBOSE = nil
+    end
+
+    after :all do
+      $VERBOSE = @original_verbose
+    end
+
     before :each do
       sandbox.new :directory => "delivered"
       sandbox.new :directory => "current"

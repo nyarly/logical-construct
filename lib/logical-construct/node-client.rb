@@ -25,14 +25,19 @@ module LogicalConstruct
 
     def initialize
       @plan_archives = []
+      @silent = false
     end
 
-    attr_accessor :plan_archives, :node_url, :server
+    attr_accessor :plan_archives, :node_url, :server, :silent
 
     def server
       @server ||= RoadForest::RemoteHost.new(node_url).tap do |server|
         #server.graph_transfer.trace = true
       end
+    end
+
+    def report(item)
+      puts item unless silent
     end
 
     def state
@@ -55,17 +60,20 @@ module LogicalConstruct
     end
 
     def deliver_manifest
-      puts "Delivering manifest"
+      report "Delivering manifest"
+      messages = []
       server.putting do |root|
+        messages = []
         needs = page_labeled("Server Manifest", root)
 
         builder = ManifestBuilder.new(needs)
 
         plan_archives.each do |archive|
-          puts "Adding #{archive}"
+          messages << "Adding #{archive}"
           builder.add_plan(archive)
         end
       end
+      report messages
     end
 
     def deliver_plans
@@ -80,10 +88,11 @@ module LogicalConstruct
           end
         end
         if needs.empty?
-          puts "Target needs fulfilled"
+          report "Target needs fulfilled"
           break
         end
 
+        report "Delivering plan archives"
         needs.each do |need|
           name, path = *need
           plan = plan_archives.find do |plan|
@@ -93,7 +102,7 @@ module LogicalConstruct
           next if plan.nil?
 
           File::open(plan, "r") do |file|
-            puts "Delivering #{name}"
+            report " Delivering #{name}"
             server.put_file(path, "application/x-gtar-compressed", file) #sorta like a ukulele
           end
         end
